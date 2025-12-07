@@ -2,51 +2,205 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>사회정서학습(SEL) 진단 결과 - 교사용</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { background: #f8f9fa; }
-    .container { max-width: 1200px; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+    }
+
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 16px 24px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    main {
+      padding: 16px 24px 32px;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 14px;
+      margin-right: 4px;
+    }
+
+    select,
+    input[type="text"] {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-ghost {
+      background: white;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-excel {
+      margin-left: auto;
+      background: #16a34a;
+      color: white;
+    }
+
+    .summary-text {
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+
+    .table-wrapper {
+      margin-top: 16px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #2563eb;
+      color: white;
+    }
+
+    th, td {
+      font-size: 14px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      text-align: left;
+    }
+
+    tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-green {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-yellow {
+      background: #fef9c3;
+      color: #ca8a04;
+    }
+
+    .badge-red {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .count-text {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #4b5563;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        font-size: 18px;
+        padding: 12px 16px;
+      }
+
+      main {
+        padding: 12px 16px 24px;
+      }
+
+      th, td {
+        font-size: 12px;
+        padding: 8px 4px;
+      }
+
+      .filter-row {
+        gap: 8px;
+      }
+
+      .btn-excel {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container py-4">
-    <h2 class="mb-4 fw-bold">사회정서학습(SEL) 진단 결과 - 교사용</h2>
+  <header>사회정서학습(SEL) 진단 결과 - 교사용</header>
 
-    <!-- 검색 영역 -->
-    <div class="row mb-4">
-      <div class="col-md-3">
-        <label class="form-label">학년 그룹</label>
-        <select id="gradeGroup" class="form-select">
+  <main>
+    <!-- 필터 + 버튼 -->
+    <div class="filter-row">
+      <div>
+        <label for="gradeGroup">학년 그룹</label>
+        <select id="gradeGroup">
           <option value="">전체</option>
-          <option value="12">1-2학년</option>
-          <option value="34">3-4학년</option>
-          <option value="56">5-6학년</option>
+          <option value="34">3–4학년</option>
+          <option value="56">5–6학년</option>
         </select>
       </div>
 
-      <div class="col-md-4">
-        <label class="form-label">반/번호(코드)</label>
-        <input id="studentCode" class="form-control" placeholder="예: 3-1-02" />
+      <div>
+        <label for="studentCode">반/번호(코드)</label>
+        <input
+          id="studentCode"
+          type="text"
+          placeholder="예: 3-1-02"
+        />
       </div>
 
-      <div class="col-md-5 d-flex align-items-end">
-        <button id="searchBtn" class="btn btn-primary me-2" style="width: 120px;">조회</button>
-        <button id="resetBtn"  class="btn btn-outline-secondary me-2" style="width: 120px;">초기화</button>
-        <button id="exportExcel" class="btn btn-success" style="width: 160px;">엑셀 전체 저장</button>
-      </div>
+      <button class="btn-primary" id="searchBtn">조회</button>
+      <button class="btn-ghost" id="resetBtn" type="button">초기화</button>
+
+      <button class="btn-excel" id="excelBtn" type="button">
+        엑셀 전체 저장
+      </button>
     </div>
 
-    <h4 class="fw-bold mt-4">2. 결과 목록</h4>
-    <p>총 <span id="totalCount">0</span>건의 결과가 있습니다.</p>
+    <div class="count-text" id="countText">총 0건의 결과가 있습니다.</div>
 
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle bg-white">
-        <thead class="table-primary">
+    <!-- 결과 테이블 -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
           <tr>
             <th>ID</th>
             <th>코드</th>
@@ -56,103 +210,262 @@
             <th>응시시간</th>
           </tr>
         </thead>
-        <tbody id="resultBody"></tbody>
+        <tbody id="resultBody">
+          <!-- 데이터 렌더링 -->
+        </tbody>
       </table>
     </div>
-  </div>
+  </main>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const gradeSel   = document.getElementById("gradeGroup");
-      const codeInput  = document.getElementById("studentCode");
-      const searchBtn  = document.getElementById("searchBtn");
-      const resetBtn   = document.getElementById("resetBtn");
-      const exportBtn  = document.getElementById("exportExcel");
-      const resultBody = document.getElementById("resultBody");
-      const totalCount = document.getElementById("totalCount");
+    // 현재 조회된 결과를 여기에 저장(엑셀 저장용)
+    let currentResults = [];
 
-      // 학생별 자동 요약 생성
-      function makeSummary(row) {
-        if (!row.domainLevels) return "요약 정보 없음";
+    // ---- 공통: 결과 한 건을 JS에서 쓰기 좋은 형태로 정리 ----
+    function normalizeResult(row) {
+      // 서버에서 오는 이름이 snake_case일 수도, camelCase일 수도 있으므로 둘 다 처리
+      const id = row.id;
 
-        const good = [];
-        const need = [];
+      const studentCode = row.studentCode ?? row.student_code ?? "";
+      const gradeGroup = row.gradeGroup ?? row.grade_group ?? "";
 
-        for (const [name, level] of Object.entries(row.domainLevels)) {
-          if (level === "green")  good.push(name);
-          if (level === "yellow" || level === "red") need.push(name);
-        }
+      const overallLevel =
+        row.overallLevel ?? row.overall_level ?? row.level ?? "";
 
-        let text = "";
-        if (good.length > 0) {
-          text += `잘하고 있는 역량: ${good.join(", ")}. `;
-        }
-        if (need.length > 0) {
-          text += `보완이 필요한 역량: ${need.join(", ")}.`;
-        }
-        return text || "요약 정보 없음";
-      }
-
-      // 결과 불러오기
-      async function loadResults() {
-        const params = new URLSearchParams();
-        if (gradeSel.value) params.append("gradeGroup", gradeSel.value);
-        if (codeInput.value.trim())
-          params.append("studentCode", codeInput.value.trim());
-
+      let domainLevels = row.domainLevels ?? row.domain_levels ?? null;
+      if (typeof domainLevels === "string") {
         try {
-          const res = await fetch(`/api/sel/results?${params.toString()}`);
-          if (!res.ok) {
-            alert("결과를 불러오는 중 오류가 발생했습니다.");
-            return;
-          }
-          const data = await res.json();
-          renderTable(data);
-        } catch (err) {
-          console.error(err);
-          alert("조회 실패");
+          domainLevels = JSON.parse(domainLevels);
+        } catch (e) {
+          domainLevels = null;
         }
       }
 
-      // 표 렌더링
-      function renderTable(list) {
-        resultBody.innerHTML = "";
-        totalCount.textContent = list.length;
+      const createdAt = row.createdAt ?? row.created_at ?? row.created ?? "";
 
-        list.forEach((row) => {
-          const tr = document.createElement("tr");
-          const created = row.createdAt
-            ? new Date(row.createdAt).toLocaleString("ko-KR")
-            : "";
+      return {
+        id,
+        studentCode,
+        gradeGroup,
+        overallLevel,
+        domainLevels,
+        createdAt
+      };
+    }
 
-          tr.innerHTML = `
-            <td>${row.id}</td>
-            <td>${row.studentCode}</td>
-            <td>${row.gradeGroup}</td>
-            <td>${row.overallLevel || ""}</td>
-            <td>${makeSummary(row)}</td>
-            <td>${created}</td>
-          `;
-          resultBody.appendChild(tr);
-        });
+    // ---- 요약 문장 생성 ----
+    function buildSummary(result) {
+      const levels = result.domainLevels;
+
+      // domain 정보가 없으면 전체 신호등만으로 간단 요약
+      if (!levels || typeof levels !== "object") {
+        if (result.overallLevel === "green") {
+          return "여러 사회정서 역량이 고르게 형성되어 있습니다. 현재의 강점을 유지하도록 격려해 주세요.";
+        }
+        if (result.overallLevel === "yellow") {
+          return "기본적인 사회정서 역량은 있으나, 일부 상황에서 조절이나 관계 맺기에 어려움이 보일 수 있습니다. 구체적인 사례를 함께 나누며 연습이 필요합니다.";
+        }
+        if (result.overallLevel === "red") {
+          return "여러 사회정서 영역에서 어려움이 보입니다. 감정 표현과 또래 관계 경험을 천천히 확장해 주는 것이 필요합니다.";
+        }
+        return "응답을 바탕으로 한 요약 정보를 생성하기 어렵습니다.";
       }
 
-      // 버튼 연결
-      searchBtn.addEventListener("click", loadResults);
+      const goodDomains = [];
+      const needDomains = [];
 
-      resetBtn.addEventListener("click", () => {
-        gradeSel.value = "";
-        codeInput.value = "";
-        loadResults();   // 전체 다시 불러오기
+      for (const [name, level] of Object.entries(levels)) {
+        if (level === "green") goodDomains.push(name);
+        else if (level === "yellow" || level === "red") needDomains.push(name);
+      }
+
+      let parts = [];
+
+      if (goodDomains.length) {
+        parts.push(
+          `${goodDomains.join(", ")} 영역에서 강점이 보입니다. 이 강점을 수업과 생활 속에서 계속 활용할 수 있도록 도와주세요.`
+        );
+      }
+
+      if (needDomains.length) {
+        parts.push(
+          `${needDomains.join(", ")} 영역에서 추가적인 연습과 지도가 필요합니다. 구체적인 상황을 함께 돌아보며 감정 표현과 조절, 도움 요청 연습을 해 보세요.`
+        );
+      }
+
+      if (!parts.length) {
+        if (result.overallLevel === "green") {
+          parts.push(
+            "전반적으로 사회정서 역량이 안정적으로 형성되어 있습니다. 현재의 긍정적인 패턴을 유지하도록 격려해 주세요."
+          );
+        } else {
+          parts.push(
+            "응답 패턴이 뚜렷하지 않아 추가 관찰과 대화가 필요합니다."
+          );
+        }
+      }
+
+      return parts.join(" ");
+    }
+
+    // ---- 신호등 뱃지 HTML ----
+    function renderBadge(level) {
+      if (level === "green") {
+        return '<span class="badge badge-green">초록불</span>';
+      }
+      if (level === "yellow") {
+        return '<span class="badge badge-yellow">노란불</span>';
+      }
+      if (level === "red") {
+        return '<span class="badge badge-red">빨간불</span>';
+      }
+      return "";
+    }
+
+    // ---- 테이블 렌더링 ----
+    function renderTable(results) {
+      const tbody = document.getElementById("resultBody");
+      tbody.innerHTML = "";
+
+      document.getElementById(
+        "countText"
+      ).textContent = `총 ${results.length}건의 결과가 있습니다.`;
+
+      if (!results.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 6;
+        td.textContent = "데이터가 없습니다.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      results.forEach((r) => {
+        const tr = document.createElement("tr");
+
+        const summaryText = buildSummary(r);
+
+        tr.innerHTML = `
+          <td>${r.id ?? ""}</td>
+          <td>${r.studentCode ?? ""}</td>
+          <td>${r.gradeGroup ?? ""}</td>
+          <td>${renderBadge(r.overallLevel)}</td>
+          <td><div class="summary-text">${summaryText}</div></td>
+          <td>${formatDateTime(r.createdAt)}</td>
+        `;
+
+        tbody.appendChild(tr);
       });
+    }
 
-      exportBtn.addEventListener("click", () => {
-        // 서버에서 엑셀 파일 생성 후 다운로드
-        window.location.href = "/api/sel/export";
-      });
+    // ---- 날짜 예쁘게 ----
+    function formatDateTime(value) {
+      if (!value) return "";
+      try {
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return d.toLocaleString("ko-KR");
+      } catch {
+        return value;
+      }
+    }
 
-      // 처음 들어왔을 때 전체 조회
-      loadResults();
+    // ---- 서버에서 결과 불러오기 ----
+    async function fetchResults() {
+      const gradeGroup = document.getElementById("gradeGroup").value.trim();
+      const studentCode = document
+        .getElementById("studentCode")
+        .value.trim();
+
+      const params = new URLSearchParams();
+      if (gradeGroup) params.append("gradeGroup", gradeGroup);
+      if (studentCode) params.append("studentCode", studentCode);
+
+      try {
+        const res = await fetch(`/api/sel/results?${params.toString()}`, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          alert("결과를 불러오는 중 오류가 발생했습니다.");
+          return;
+        }
+
+        const data = await res.json();
+        // data 배열을 우리가 쓰기 좋은 형태로 정리
+        currentResults = (Array.isArray(data) ? data : []).map(normalizeResult);
+        renderTable(currentResults);
+      } catch (e) {
+        console.error(e);
+        alert("결과를 불러오는 중 오류가 발생했습니다.");
+      }
+    }
+
+    // ---- 필터 초기화 ----
+    function resetFilters() {
+      document.getElementById("gradeGroup").value = "";
+      document.getElementById("studentCode").value = "";
+      fetchResults();
+    }
+
+    // ---- 엑셀(실제로는 CSV)로 전체 저장 ----
+    function downloadExcel() {
+      if (!currentResults.length) {
+        alert("저장할 데이터가 없습니다.");
+        return;
+      }
+
+      // 간단히 CSV로 생성 (엑셀에서 열림)
+      const header = ["ID", "코드", "학년그룹", "종신호등", "요약 정보", "응시시간"];
+      const rows = currentResults.map((r) => [
+        r.id ?? "",
+        r.studentCode ?? "",
+        r.gradeGroup ?? "",
+        r.overallLevel ?? "",
+        buildSummary(r).replace(/\n/g, " "),
+        formatDateTime(r.createdAt),
+      ]);
+
+      const csv = [header, ...rows]
+        .map((cols) =>
+          cols
+            .map((c) => {
+              const text = String(c ?? "").replace(/"/g, '""');
+              return `"${text}"`;
+            })
+            .join(",")
+        )
+        .join("\r\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      a.href = url;
+      a.download = `sel_results_${today}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ---- 이벤트 바인딩 ----
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .getElementById("searchBtn")
+        .addEventListener("click", fetchResults);
+
+      document
+        .getElementById("resetBtn")
+        .addEventListener("click", resetFilters);
+
+      document
+        .getElementById("excelBtn")
+        .addEventListener("click", downloadExcel);
+
+      // 처음 화면 들어오면 전체 조회
+      fetchResults();
     });
   </script>
 </body>
