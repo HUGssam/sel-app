@@ -5,9 +5,26 @@ const app = express();
 
 // ===== 기본 설정 =====
 app.use(express.json());
+
+// public 폴더를 정적 파일로 제공
 app.use(express.static(path.join(__dirname, "public")));
 
-// 간단한 메모리 저장소 (실전에서는 DB로 교체)
+// 기본 주소(/)로 들어오면 학생용 화면으로 이동
+app.get("/", (req, res) => {
+  res.redirect("/student.html");
+});
+
+// 학생용 화면
+app.get("/student.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "student.html"));
+});
+
+// 교사용 화면
+app.get("/teacher.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "teacher.html"));
+});
+
+// ===== 간단한 메모리 저장소 (실전에서는 DB 사용 권장) =====
 let results = [];
 let idCounter = 1;
 
