@@ -1,84 +1,133 @@
 // server.js
 const express = require("express");
 const path = require("path");
+const { Pool } = require("pg");
 const app = express();
 
 // ===== 기본 설정 =====
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-// ===== HTML 화면 라우트 =====
 
-// 기본 주소(/)로 들어오면 학생용 화면 보내기
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "student.html"));
+// ===== PostgreSQL 연결 =====
+// Render 환경변수에서 DATABASE_URL 불러오기
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
-// 학생용 화면
+// DB 테이블 자동 생성
+async function initDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS results (
+        id SERIAL PRIMARY KEY,
+        student_code VARCHAR(20),
+        grade_group VARCHAR(10),
+        answers TEXT,
+        result_type VARCHAR(20),
+        overall_level VARCHAR(20),
+        domain_levels TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log("DB 테이블 준비 완료");
+  } catch (error) {
+    console.error("DB 초기화 오류:", error);
+  }
+}
+initDatabase();
+
+
+// ===== 기본 URL → 학생 화면 =====
+app.get("/", (req, res) => {
+  res.redirect("/student.html");
+});
+
+// ===== 학생/교사 페이지 라우트 =====
 app.get("/student.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "student.html"));
 });
 
-// 교사용 화면
 app.get("/teacher.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "teacher.html"));
 });
 
-// ===== 간단한 메모리 저장소 (실전에서는 DB 사용 권장) =====
-let results = [];
-let idCounter = 1;
+
+// ===========================================
+// =============== API 영역 ==================
+// ===========================================
 
 // ===== API: 결과 저장 =====
-app.post("/api/sel/results", (req, res) => {
-  const body = req.body || {};
+app.post("/api/sel/results", async (req, res) => {
   const {
-    studentCode,
-    gradeGroup,   // "34" or "56"
-    answers,      // [1,2,3,4,...]
-    resultType,   // "overall" or "byDomain"
-    overallLevel, // "red"/"yellow"/"green" (3·4)
-    domainLevels  // { "자기 인식": "green", ... } (5·6)
-  } = body;
-
-  // 간단한 검증
-  if (!studentCode || !gradeGroup || !Array.isArray(answers) || answers.length === 0) {
-    return res.status(400).json({ error: "잘못된 요청입니다." });
-  }
-
-  const newResult = {
-    id: idCounter++,
     studentCode,
     gradeGroup,
     answers,
     resultType,
-    overallLevel: overallLevel || null,
-    domainLevels: domainLevels || null,
-    createdAt: new Date().toISOString(),
-  };
+    overallLevel,
+    domainLevels
+  } = req.body;
 
-  results.push(newResult);
-  res.json({ ok: true, result: newResult });
+  if (!studentCode || !gradeGroup || !answers) {
+    return res.status(400).json({ error: "필수 항목 누락" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO results (student_code, grade_group, answers, result_type, overall_level, domain_levels)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
+        studentCode,
+        gradeGroup,
+        JSON.stringify(answers),
+        resultType,
+        overallLevel,
+        JSON.stringify(domainLevels)
+      ]
+    );
+
+    res.json({ ok: true, result: result.rows[0] });
+  } catch (error) {
+    console.error("DB 저장 오류:", error);
+    res.status(500).json({ error: "DB 저장 중 오류" });
+  }
 });
 
 // ===== API: 결과 조회 (교사용) =====
-app.get("/api/sel/results", (req, res) => {
+app.get("/api/sel/results", async (req, res) => {
   const { gradeGroup, studentCode } = req.query;
 
-  let filtered = results.slice();
+  let query = "SELECT * FROM results WHERE 1=1";
+  let params = [];
 
   if (gradeGroup) {
-    filtered = filtered.filter((r) => r.gradeGroup === gradeGroup);
-  }
-  if (studentCode) {
-    filtered = filtered.filter((r) =>
-      String(r.studentCode).toLowerCase().includes(String(studentCode).toLowerCase())
-    );
+    params.push(gradeGroup);
+    query += ` AND grade_group = $${params.length}`;
   }
 
-  res.json(filtered);
+  if (studentCode) {
+    params.push(`%${studentCode.toLowerCase()}%`);
+    query += ` AND LOWER(student_code) LIKE $${params.length}`;
+  }
+
+  query += " ORDER BY id DESC";
+
+  try {
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("DB 조회 오류:", error);
+    res.status(500).json({ error: "DB 조회 중 오류" });
+  }
 });
 
-// ===== 서버 실행 =====
-const PORT = process.env.PORT || 10000;
+
+// ===========================================
+// =============== 서버 실행 =================
+// ===========================================
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`SEL app server running on http://localhost:${PORT}`);
 });
