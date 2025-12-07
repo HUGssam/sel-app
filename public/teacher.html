@@ -3,425 +3,205 @@
 <head>
   <meta charset="UTF-8" />
   <title>사회정서학습(SEL) 진단 결과 - 교사용</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 16px;
-      background: #f4f5f7;
+      font-family: "Noto Sans KR", sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
     }
     h1 {
-      margin-top: 0;
-      font-size: 22px;
+      color: #333;
     }
-    .card {
-      background: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    label {
-      font-size: 14px;
-      margin-right: 4px;
-    }
-    select, input {
-      padding: 4px 8px;
-      font-size: 14px;
-    }
-    button {
-      padding: 6px 12px;
-      font-size: 14px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-    }
-    button.primary {
-      background: #2563eb;
-      color: #fff;
-    }
-    button.secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-    .info-text {
-      font-size: 12px;
-      color: #6b7280;
+    .box {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-    thead {
-      background: #e5e7eb;
+      margin-top: 15px;
     }
     th, td {
-      border: 1px solid #d1d5db;
-      padding: 4px 6px;
-      text-align: left;
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
     }
     th {
-      white-space: nowrap;
+      background: #345beb;
+      color: white;
     }
-    .badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 9999px;
-      font-size: 11px;
-      color: #fff;
-    }
-    .badge.green { background: #16a34a; }
-    .badge.yellow { background: #ca8a04; }
-    .badge.red { background: #dc2626; }
-
-    .pager {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-    .pager-buttons {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
-    .pager button {
-      padding: 4px 8px;
+    .btn {
+      background: #345beb;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
     }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+  <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
 
-    <!-- 조회 조건 -->
-    <div class="row">
-      <label for="gradeGroup">학년 그룹</label>
-      <select id="gradeGroup">
-        <option value="">전체</option>
-        <option value="34">3–4학년</option>
-        <option value="56">5–6학년</option>
-      </select>
+  <div class="box">
+    <h2>1. 조회 조건</h2>
 
-      <label for="studentCode">반/번호(코드)</label>
-      <input id="studentCode" placeholder="예: 3-2 또는 5-1-02" />
+    <label>학년 그룹</label>
+    <select id="gradeGroup">
+      <option value="">전체</option>
+      <option value="34">3·4학년</option>
+      <option value="56">5·6학년</option>
+    </select>
 
-      <button class="primary" id="btnSearch">조회</button>
-      <button class="secondary" id="btnReset">초기화</button>
-      <button class="secondary" id="btnDownload">엑셀(CSV) 다운로드</button>
-    </div>
+    <label style="margin-left:20px;">반/번호(코드):</label>
+    <input id="studentCode" placeholder="예: 3-2 또는 5-1-02" />
 
-    <div class="row">
-      <span class="info-text" id="autoRefreshInfo">
-        ⏱ 30초마다 자동 새로고침 중…
-      </span>
-    </div>
+    <button class="btn" onclick="loadResults()">조회</button>
+    <button class="btn" onclick="resetFilters()">초기화</button>
+    <button class="btn" onclick="downloadCSV()">엑셀 다운로드</button>
   </div>
 
-  <div class="card">
-    <h2 style="font-size:18px;margin-top:0;">결과 목록</h2>
-    <div class="info-text" id="summaryText">결과를 불러오는 중입니다…</div>
+  <div class="box">
+    <h2>2. 결과 목록</h2>
+    <p id="countText">총 0건의 결과가 있습니다.</p>
 
-    <table>
+    <table id="resultTable">
       <thead>
         <tr>
           <th>ID</th>
           <th>코드</th>
-          <th>학년 그룹</th>
-          <th>총 신호등</th>
-          <th>세부 정보</th>
-          <th>응시 시간</th>
+          <th>학년그룹</th>
+          <th>총신호등</th>
+          <th>세부정보</th>
+          <th>응시시간</th>
         </tr>
       </thead>
-      <tbody id="resultBody">
-        <tr><td colspan="6" style="text-align:center;">데이터가 없습니다.</td></tr>
-      </tbody>
+      <tbody></tbody>
     </table>
-
-    <div class="pager">
-      <div class="pager-buttons">
-        <button id="btnPrev">이전</button>
-        <span id="pageInfo">0 / 0 페이지</span>
-        <button id="btnNext">다음</button>
-      </div>
-      <div class="info-text">
-        페이지당 <span id="pageSizeText">20</span>건 · 총 <span id="totalCount">0</span>건
-      </div>
-    </div>
   </div>
 
   <script>
-    // ===== 전역 상태 =====
-    const PAGE_SIZE = 20;
-    let allResults = [];
-    let currentPage = 1;
     let autoRefreshTimer = null;
 
-    const gradeGroupEl = document.getElementById("gradeGroup");
-    const studentCodeEl = document.getElementById("studentCode");
-    const resultBodyEl = document.getElementById("resultBody");
-    const summaryTextEl = document.getElementById("summaryText");
-    const pageInfoEl = document.getElementById("pageInfo");
-    const totalCountEl = document.getElementById("totalCount");
-    const pageSizeTextEl = document.getElementById("pageSizeText");
-    const autoRefreshInfoEl = document.getElementById("autoRefreshInfo");
+    async function loadResults() {
+      const gradeGroup = document.getElementById("gradeGroup").value;
+      const studentCode = document.getElementById("studentCode").value.trim();
 
-    document.getElementById("btnSearch").addEventListener("click", () => {
-      currentPage = 1;
-      fetchResults();
-    });
+      const params = new URLSearchParams();
+      if (gradeGroup) params.append("gradeGroup", gradeGroup);
+      if (studentCode) params.append("studentCode", studentCode);
 
-    document.getElementById("btnReset").addEventListener("click", () => {
-      gradeGroupEl.value = "";
-      studentCodeEl.value = "";
-      currentPage = 1;
-      fetchResults();
-    });
+      const res = await fetch(`/api/sel/results?${params.toString()}`);
+      const data = await res.json();
 
-    document.getElementById("btnPrev").addEventListener("click", () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderTable();
-      }
-    });
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
 
-    document.getElementById("btnNext").addEventListener("click", () => {
-      const maxPage = Math.ceil(allResults.length / PAGE_SIZE) || 1;
-      if (currentPage < maxPage) {
-        currentPage++;
-        renderTable();
-      }
-    });
+      data.forEach((r) => {
+        const tr = document.createElement("tr");
 
-    document.getElementById("btnDownload").addEventListener("click", () => {
-      downloadCSV();
-    });
+        const detail = parseDetail(r.domain_levels || r.domainLevels);
+        const timeText = r.created_at
+          ? new Date(r.created_at).toLocaleString("ko-KR")
+          : "";
 
-    pageSizeTextEl.textContent = PAGE_SIZE;
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.student_code || r.studentCode}</td>
+          <td>${r.grade_group || r.gradeGroup}</td>
+          <td>${r.overall_level || r.overallLevel || ""}</td>
+          <td>${detail}</td>
+          <td>${timeText}</td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-    // ===== 데이터 가져오기 =====
-    async function fetchResults(isAuto = false) {
+      document.getElementById("countText").innerText =
+        `총 ${data.length}건의 결과가 있습니다.`;
+    }
+
+    function parseDetail(raw) {
+      if (!raw) return "";
       try {
-        summaryTextEl.textContent = "결과를 불러오는 중입니다…";
-
-        const params = new URLSearchParams();
-        const gradeGroup = gradeGroupEl.value.trim();
-        const code = studentCodeEl.value.trim();
-
-        if (gradeGroup) params.append("gradeGroup", gradeGroup);
-        if (code) params.append("studentCode", code);
-
-        const resp = await fetch("/api/sel/results?" + params.toString());
-        if (!resp.ok) {
-          throw new Error("서버 응답 오류");
-        }
-        const data = await resp.json();
-        allResults = Array.isArray(data) ? data : [];
-        if (!isAuto) {
-          currentPage = 1; // 수동 조회 시 첫 페이지로
-        }
-        renderTable();
-      } catch (err) {
-        console.error(err);
-        summaryTextEl.textContent = "결과를 불러오지 못했습니다.";
-        resultBodyEl.innerHTML = `
-          <tr><td colspan="6" style="text-align:center;color:#b91c1c;">
-          서버 오류가 발생했습니다.
-          </td></tr>`;
+        const obj = typeof raw === "string" ? JSON.parse(raw) : raw;
+        return Object.entries(obj)
+          .map(([k, v]) => `${k}:${v}`)
+          .join(", ");
+      } catch {
+        return raw;
       }
     }
 
-    // ===== 테이블 렌더링 & 페이징 =====
-    function renderTable() {
-      const total = allResults.length;
-      totalCountEl.textContent = total;
-
-      if (total === 0) {
-        resultBodyEl.innerHTML = `
-          <tr><td colspan="6" style="text-align:center;">데이터가 없습니다.</td></tr>`;
-        pageInfoEl.textContent = "0 / 0 페이지";
-        summaryTextEl.textContent = "총 0건";
-        return;
-      }
-
-      const maxPage = Math.ceil(total / PAGE_SIZE) || 1;
-      if (currentPage > maxPage) currentPage = maxPage;
-
-      const start = (currentPage - 1) * PAGE_SIZE;
-      const end = Math.min(start + PAGE_SIZE, total);
-      const pageItems = allResults.slice(start, end);
-
-      resultBodyEl.innerHTML = pageItems
-        .map((r) => {
-          const overall = (r.overall_level || r.overallLevel || "").toLowerCase();
-          const badgeClass =
-            overall === "green" ? "green"
-              : overall === "yellow" ? "yellow"
-              : overall === "red" ? "red"
-              : "";
-
-          const badgeText =
-            overall === "green" ? "초록불"
-              : overall === "yellow" ? "노란불"
-              : overall === "red" ? "빨간불"
-              : "-";
-
-          let detailText = "";
-          const rawDetail = r.domain_levels || r.domainLevels || "";
-          try {
-            const parsed = typeof rawDetail === "string" ? JSON.parse(rawDetail) : rawDetail;
-            if (parsed && typeof parsed === "object") {
-              detailText = Object.entries(parsed)
-                .map(([k, v]) => `${k}:${v}`)
-                .join(", ");
-            } else {
-              detailText = rawDetail || "";
-            }
-          } catch (e) {
-            detailText = rawDetail || "";
-          }
-
-          const created = r.created_at || r.createdAt;
-          const createdText = created
-            ? new Date(created).toLocaleString("ko-KR")
-            : "";
-
-          return `
-            <tr>
-              <td>${r.id}</td>
-              <td>${escapeHtml(r.student_code || r.studentCode || "")}</td>
-              <td>${escapeHtml(r.grade_group || r.gradeGroup || "")}</td>
-              <td>
-                ${badgeClass
-                  ? `<span class="badge ${badgeClass}">${badgeText}</span>`
-                  : badgeText}
-              </td>
-              <td>${escapeHtml(detailText)}</td>
-              <td>${escapeHtml(createdText)}</td>
-            </tr>
-          `;
-        })
-        .join("");
-
-      pageInfoEl.textContent = `${currentPage} / ${maxPage} 페이지`;
-      summaryTextEl.textContent = `총 ${total}건, 현재 ${start + 1}–${end}번 기록 표시`;
-
-      document.getElementById("btnPrev").disabled = currentPage <= 1;
-      document.getElementById("btnNext").disabled = currentPage >= maxPage;
+    function resetFilters() {
+      document.getElementById("gradeGroup").value = "";
+      document.getElementById("studentCode").value = "";
+      loadResults();
     }
 
-    // ===== 엑셀(CSV) 다운로드 =====
-    function downloadCSV() {
-      if (!allResults.length) {
-        alert("다운로드할 데이터가 없습니다.");
-        return;
-      }
+    // ===============================
+    // 🔥 CSV 다운로드 (엑셀 날짜 변환 방지 포함)
+    // ===============================
+    async function downloadCSV() {
+      const gradeGroup = document.getElementById("gradeGroup").value;
+      const studentCode = document.getElementById("studentCode").value.trim();
 
-      const header = [
-        "ID",
-        "코드",
-        "학년그룹",
-        "총신호등",
-        "세부정보",
-        "응시시간"
-      ];
+      const params = new URLSearchParams();
+      if (gradeGroup) params.append("gradeGroup", gradeGroup);
+      if (studentCode) params.append("studentCode", studentCode);
 
-      const rows = allResults.map((r) => {
-        const overall = r.overall_level || r.overallLevel || "";
-        let detailText = "";
-        const rawDetail = r.domain_levels || r.domainLevels || "";
-        try {
-          const parsed = typeof rawDetail === "string" ? JSON.parse(rawDetail) : rawDetail;
-          if (parsed && typeof parsed === "object") {
-            detailText = Object.entries(parsed)
-              .map(([k, v]) => `${k}:${v}`)
-              .join(", ");
-          } else {
-            detailText = rawDetail || "";
-          }
-        } catch (e) {
-          detailText = rawDetail || "";
-        }
+      const res = await fetch(`/api/sel/results?${params.toString()}`);
+      const data = await res.json();
+
+      const rows = data.map((r) => {
+        const detail = parseDetail(r.domain_levels || r.domainLevels);
+
+        // 🔹 코드가 날짜로 변환되지 않도록 Excel 보호 형식 적용
+        const codeValue = r.student_code || r.studentCode || "";
+        const safeCode = `="${String(codeValue).replace(/"/g, '""')}"`;
 
         const created = r.created_at || r.createdAt;
-        const createdText = created
+        const timeText = created
           ? new Date(created).toLocaleString("ko-KR")
           : "";
 
         return [
           r.id,
-          r.student_code || r.studentCode || "",
-          r.grade_group || r.gradeGroup || "",
-          overall,
-          detailText,
-          createdText
+          safeCode,          // ← 엑셀 자동 날짜 변환 방지
+          r.grade_group || r.gradeGroup,
+          r.overall_level || r.overallLevel || "",
+          detail,
+          timeText
         ];
       });
 
-      const csvLines = [];
-      csvLines.push(header.join(","));
-      for (const row of rows) {
-        const escaped = row.map((item) => {
-          const s = String(item ?? "");
-          if (s.includes(",") || s.includes('"') || s.includes("\n")) {
-            return `"${s.replace(/"/g, '""')}"`;
-          }
-          return s;
-        });
-        csvLines.push(escaped.join(","));
-      }
+      const csvLines = [
+        ["ID", "코드", "학년그룹", "총신호등", "세부정보", "응시시간"],
+        ...rows
+      ]
+        .map((row) => row.join(","))
+        .join("\n");
 
-      const csvContent = "\uFEFF" + csvLines.join("\r\n"); // BOM 추가(한글 깨짐 방지)
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      const now = new Date();
-      const dateStr = now.toISOString().slice(0, 10);
-      a.href = url;
-      a.download = `sel_results_${dateStr}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const blob = new Blob([csvLines], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `sel_results_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
     }
 
-    // ===== 간단한 XSS 방지용 이스케이프 =====
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    // ===== 자동 새로고침(30초마다) =====
+    // ===============================
+    // 🔄 자동 새로고침 (5초)
+    // ===============================
     function startAutoRefresh() {
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-      autoRefreshTimer = setInterval(() => {
-        fetchResults(true); // 자동 갱신
-      }, 30000);
-      autoRefreshInfoEl.textContent = "⏱ 30초마다 자동 새로고침 중…";
+      autoRefreshTimer = setInterval(loadResults, 5000);
     }
 
-    // 초기 실행
-    fetchResults(false);
+    loadResults();
     startAutoRefresh();
   </script>
 </body>
