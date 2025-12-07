@@ -1,89 +1,199 @@
-<!-- teacher.html (일부분만 변경된 최종본 전체 제공) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>SEL 결과 - 교사용</title>
-<style>
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-  th { background: #2c6cf6; color: white; }
-  textarea { width: 95%; height: 60px; }
-  button { padding: 5px 10px; }
-</style>
+  <meta charset="UTF-8" />
+  <title>사회정서학습(SEL) 진단 결과 - 교사용</title>
+  <style>
+    body {
+      font-family: "Noto Sans KR", system-ui, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f4f5f7;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+    .card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+    label {
+      font-size: 14px;
+      margin-right: 4px;
+    }
+    select, input {
+      padding: 4px 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    button.primary { background: #2563eb; color: #fff; }
+    button.secondary { background: #e5e7eb; color: #111827; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    th {
+      background: #2563eb;
+      color: #fff;
+    }
+    textarea {
+      width: 95%;
+      min-height: 48px;
+      font-size: 13px;
+      resize: vertical;
+    }
+  </style>
 </head>
 <body>
-<h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+  <div class="card">
+    <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+    <div style="margin-bottom:8px;">
+      <label for="gradeGroup">학년 그룹</label>
+      <select id="gradeGroup">
+        <option value="">전체</option>
+        <option value="34">3-4학년</option>
+        <option value="56">5-6학년</option>
+      </select>
 
-<div>
-  <label>학년 그룹</label>
-  <select id="gradeGroup">
-    <option value="">전체</option>
-    <option value="34">3-4학년</option>
-    <option value="56">5-6학년</option>
-  </select>
+      <label for="studentCode" style="margin-left:16px;">반/번호(코드)</label>
+      <input id="studentCode" placeholder="예: 3-1-02" />
 
-  <label>반/번호</label>
-  <input id="studentCode" placeholder="예: 3-1-02">
-  <button onclick="loadResults()">조회</button>
-</div>
+      <button class="primary" onclick="loadResults()">조회</button>
+      <button class="secondary" onclick="resetFilters()">초기화</button>
+    </div>
+    <div id="countText" style="font-size:13px;color:#4b5563;">
+      총 0건의 결과가 있습니다.
+    </div>
+  </div>
 
-<table id="resultTable">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>코드</th>
-      <th>학년그룹</th>
-      <th>종신호등</th>
-      <th>세부 정보 (지도 포인트)</th>
-      <th>응시시간</th>
-      <th>저장</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <div class="card">
+    <h2 style="font-size:18px;margin-top:0;">2. 결과 목록</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>코드</th>
+          <th>학년그룹</th>
+          <th>종신호등</th>
+          <th>세부 정보 (지도 포인트)</th>
+          <th>응시시간</th>
+          <th>저장</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody">
+        <tr><td colspan="7">데이터가 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-<script>
-async function loadResults() {
-  const gradeGroup = document.getElementById("gradeGroup").value;
-  const studentCode = document.getElementById("studentCode").value;
+  <script>
+    async function loadResults() {
+      const gradeGroup = document.getElementById("gradeGroup").value.trim();
+      const studentCode = document.getElementById("studentCode").value.trim();
 
-  const res = await fetch(`/api/sel/results?gradeGroup=${gradeGroup}&studentCode=${studentCode}`);
-  const data = await res.json();
+      const params = new URLSearchParams();
+      if (gradeGroup) params.append("gradeGroup", gradeGroup);
+      if (studentCode) params.append("studentCode", studentCode);
 
-  const tbody = document.querySelector("#resultTable tbody");
-  tbody.innerHTML = "";
+      try {
+        const res = await fetch("/api/sel/results?" + params.toString());
+        if (!res.ok) throw new Error("서버 오류");
+        const data = await res.json();
 
-  data.forEach(r => {
-    const tr = document.createElement("tr");
+        const tbody = document.getElementById("resultBody");
+        const countText = document.getElementById("countText");
 
-    tr.innerHTML = `
-      <td>${r.id}</td>
-      <td>${r.student_code}</td>
-      <td>${r.grade_group}</td>
-      <td>${r.overall_level}</td>
-      <td>
-        <textarea id="detail_${r.id}" placeholder="예: 자기조절 역량 강화 필요">${r.detail || ""}</textarea>
-      </td>
-      <td>${new Date(r.created_at).toLocaleString()}</td>
-      <td><button onclick="saveDetail(${r.id})">저장</button></td>
-    `;
+        if (!Array.isArray(data) || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7">데이터가 없습니다.</td></tr>`;
+          countText.textContent = "총 0건의 결과가 있습니다.";
+          return;
+        }
 
-    tbody.appendChild(tr);
-  });
-}
+        countText.textContent = `총 ${data.length}건의 결과가 있습니다.`;
+        tbody.innerHTML = data.map(rowToTrHtml).join("");
+      } catch (e) {
+        console.error(e);
+        alert("결과를 불러오는 중 오류가 발생했습니다.");
+      }
+    }
 
-async function saveDetail(id) {
-  const detail = document.getElementById(`detail_${id}`).value;
+    function rowToTrHtml(r) {
+      const created = r.created_at || r.createdAt;
+      const timeText = created ? new Date(created).toLocaleString("ko-KR") : "";
 
-  await fetch("/api/sel/updateDetail", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, detail })
-  });
+      const detail = r.detail || "";
 
-  alert("저장되었습니다!");
-}
-</script>
+      return `
+        <tr>
+          <td>${r.id}</td>
+          <td>${escapeHtml(r.student_code || r.studentCode || "")}</td>
+          <td>${escapeHtml(r.grade_group || r.gradeGroup || "")}</td>
+          <td>${escapeHtml(r.overall_level || r.overallLevel || "")}</td>
+          <td>
+            <textarea id="detail_${r.id}" placeholder="예: 자기조절 역량 지도 필요">${escapeHtml(detail)}</textarea>
+          </td>
+          <td>${escapeHtml(timeText)}</td>
+          <td>
+            <button onclick="saveDetail(${r.id})">저장</button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function saveDetail(id) {
+      const textarea = document.getElementById(`detail_${id}`);
+      if (!textarea) return;
+      const detail = textarea.value;
+
+      try {
+        const res = await fetch("/api/sel/updateDetail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, detail }),
+        });
+        if (!res.ok) throw new Error("저장 실패");
+        alert("저장되었습니다.");
+      } catch (e) {
+        console.error(e);
+        alert("저장 중 오류가 발생했습니다.");
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById("gradeGroup").value = "";
+      document.getElementById("studentCode").value = "";
+      loadResults();
+    }
+
+    // 처음 진입 시 한 번 조회
+    loadResults();
+  </script>
 </body>
 </html>
