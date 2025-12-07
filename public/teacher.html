@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>SEL 진단 결과 - 교사용</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      background: #f5f5f7;
+      color: #222;
+    }
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.2rem; margin-top: 1.4rem; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      margin-top: 16px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    label {
+      font-size: 0.9rem;
+    }
+    input, select {
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 500;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.85rem;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 6px 4px;
+      text-align: left;
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: #fff;
+    }
+    .pill.green { background: #22c55e; }
+    .pill.yellow { background: #facc15; color: #111827; }
+    .pill.red { background: #ef4444; }
+    .pill.gray { background: #9ca3af; }
+    .helper-text {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .small-caption {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 3px;
+    }
+    @media (max-width: 640px) {
+      table { font-size: 0.8rem; }
+      th, td { padding: 4px 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+      <p class="helper-text">
+        학생들이 태블릿/PC에서 검사한 결과를 한눈에 확인하는 화면입니다.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2>1. 조회 조건</h2>
+      <div class="row" style="margin-top: 8px;">
+        <label>
+          학년 그룹
+          <select id="gradeFilter">
+            <option value="">전체</option>
+            <option value="34">3·4학년</option>
+            <option value="56">5·6학년</option>
+          </select>
+        </label>
+        <label>
+          반/번호(코드)
+          <input id="codeFilter" type="text" placeholder="예: 3-2 또는 5-1-02" />
+        </label>
+        <button id="searchButton" type="button">조회</button>
+        <button id="resetButton" type="button" class="secondary">초기화</button>
+      </div>
+      <p class="helper-text">
+        이름 대신 코드만 사용한 경우에도, 반/번호 패턴으로 검색할 수 있습니다.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>2. 결과 목록</h2>
+      <p id="summaryText" class="small-caption">아직 데이터를 불러오지 않았습니다.</p>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>코드</th>
+              <th>학년</th>
+              <th>종류</th>
+              <th>신호등</th>
+              <th>세부 정보</th>
+              <th>응시 시각</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody">
+            <!-- JS로 채움 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const gradeFilter = document.getElementById("gradeFilter");
+    const codeFilter = document.getElementById("codeFilter");
+    const searchButton = document.getElementById("searchButton");
+    const resetButton = document.getElementById("resetButton");
+    const resultTableBody = document.getElementById("resultTableBody");
+    const summaryText = document.getElementById("summaryText");
+
+    searchButton.addEventListener("click", fetchResults);
+    resetButton.addEventListener("click", () => {
+      gradeFilter.value = "";
+      codeFilter.value = "";
+      fetchResults();
+    });
+
+    // 처음 접속 시 자동 조회
+    fetchResults();
+
+    function fetchResults() {
+      const params = new URLSearchParams();
+      if (gradeFilter.value) params.append("gradeGroup", gradeFilter.value);
+      if (codeFilter.value.trim()) params.append("studentCode", codeFilter.value.trim());
+
+      const url = "/api/sel/results" + (params.toString() ? "?" + params.toString() : "");
+
+      summaryText.textContent = "불러오는 중입니다...";
+      fetch(url)
+        .then((res) => res.json())
+        .then((list) => {
+          renderTable(list);
+        })
+        .catch((err) => {
+          console.error(err);
+          summaryText.textContent = "데이터를 불러오는 중 오류가 발생했습니다.";
+        });
+    }
+
+    function renderTable(list) {
+      resultTableBody.innerHTML = "";
+      summaryText.textContent = `총 ${list.length}건의 결과가 있습니다.`;
+
+      if (!list.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 7;
+        td.textContent = "데이터가 없습니다.";
+        resultTableBody.appendChild(tr);
+        tr.appendChild(td);
+        return;
+      }
+
+      list.forEach((item) => {
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td");
+        tdId.textContent = item.id;
+
+        const tdCode = document.createElement("td");
+        tdCode.textContent = item.studentCode || "-";
+
+        const tdGrade = document.createElement("td");
+        tdGrade.textContent = item.gradeGroup === "34" ? "3·4학년" : "5·6학년";
+
+        const tdType = document.createElement("td");
+        tdType.textContent = item.resultType === "overall" ? "종합" : "역량별";
+
+        const tdLight = document.createElement("td");
+        if (item.resultType === "overall") {
+          const pill = document.createElement("span");
+          pill.className = "pill " + (item.overallLevel || "gray");
+          pill.textContent = item.overallLevel || "미정";
+          tdLight.appendChild(pill);
+        } else {
+          // 5·6학년: 주요 2~3개만 줄여서 표시
+          const levels = item.domainLevels || {};
+          ["자기 인식", "자기 관리"].forEach((key) => {
+            if (levels[key]) {
+              const pill = document.createElement("span");
+              pill.className = "pill " + levels[key];
+              pill.style.marginRight = "2px";
+              pill.textContent = key[0] + ":" + levels[key][0].toUpperCase();
+              tdLight.appendChild(pill);
+            }
+          });
+        }
+
+        const tdDetail = document.createElement("td");
+        if (item.resultType === "overall") {
+          tdDetail.textContent = `종합: ${item.overallLevel || "미정"}`;
+        } else {
+          const levels = item.domainLevels || {};
+          const keys = Object.keys(levels);
+          if (keys.length) {
+            tdDetail.textContent = keys.map(k => `${k}:${levels[k]}`).join(", ");
+          } else {
+            tdDetail.textContent = "-";
+          }
+        }
+
+        const tdTime = document.createElement("td");
+        tdTime.textContent = formatDateTime(item.createdAt);
+
+        tr.appendChild(tdId);
+        tr.appendChild(tdCode);
+        tr.appendChild(tdGrade);
+        tr.appendChild(tdType);
+        tr.appendChild(tdLight);
+        tr.appendChild(tdDetail);
+        tr.appendChild(tdTime);
+        resultTableBody.appendChild(tr);
+      });
+    }
+
+    function formatDateTime(iso) {
+      if (!iso) return "-";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mi = String(d.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+    }
+  </script>
+</body>
+</html>

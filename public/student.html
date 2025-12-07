@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>사회정서학습(SEL) 진단 - 학생용</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      background: #f5f5f7;
+      color: #222;
+    }
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.2rem; margin-top: 1.4rem; }
+    p { line-height: 1.5; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      margin-top: 16px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 500;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: #1d4ed8;
+    }
+    button.secondary:not(:disabled):hover { background: #d1d5db; }
+
+    .helper-text {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .options {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    label.option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      cursor: pointer;
+      font-size: 0.95rem;
+      background: #f9fafb;
+    }
+    label.option input { accent-color: #2563eb; }
+
+    .progress-wrapper { margin: 10px 0 6px; }
+    .progress-bar {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .progress-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #3b82f6, #22c55e);
+      transition: width 0.2s ease-out;
+    }
+    .progress-label {
+      font-size: 0.85rem;
+      color: #4b5563;
+      margin-top: 4px;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .nav-buttons > div { display: flex; gap: 8px; }
+
+    .error-text {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #e5e7eb;
+      color: #374151;
+      margin-left: 4px;
+    }
+    .badge.grade-34 { background: #bfdbfe; }
+    .badge.grade-56 { background: #a7f3d0; }
+
+    .result-summary {
+      display: grid;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .traffic-light {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .light-bulbs { display: flex; gap: 8px; }
+    .bulb {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      border: 1px solid #d1d5db;
+    }
+    .bulb.red.active { background: #ef4444; }
+    .bulb.yellow.active { background: #facc15; }
+    .bulb.green.active { background: #22c55e; }
+    .domain-grid { display: grid; gap: 12px; }
+    @media (min-width: 640px) {
+      .domain-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    .domain-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .small-caption {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 3px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <header>
+      <h1>사회정서학습(SEL) 진단</h1>
+      <p class="helper-text">
+        초등학생이 스스로 감정과 행동을 돌아보고, 신호등(빨강·노랑·초록)으로 상태를 확인하는 간단한 진단 도구입니다.
+      </p>
+    </header>
+
+    <!-- 1. 인트로/학년 선택 -->
+    <section id="introView" class="card" aria-label="학년 선택 화면">
+      <h2>1. 학년과 코드(반/번호)를 적어 주세요</h2>
+
+      <div class="row" style="margin-top:8px;">
+        <button type="button" data-grade-group="34">3·4학년용</button>
+        <button type="button" data-grade-group="56">5·6학년용</button>
+      </div>
+      <p class="helper-text">
+        · 3·4학년: 단일 감정 중심, 종합 신호등으로 안내합니다.<br />
+        · 5·6학년: 복합 감정 포함, 역량별 신호등 5개로 안내합니다.
+      </p>
+
+      <div style="margin-top: 12px;">
+        <label>
+          반/번호 또는 익명 코드
+          <input id="studentCodeInput" type="text" placeholder="예: 3-2-05 또는 A-01" />
+        </label>
+        <p class="helper-text">이름 대신 반/번호나 코드만 써도 됩니다.</p>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <button type="button" id="startButton" disabled>시작하기</button>
+      </div>
+    </section>
+
+    <!-- 2. 문항 응답 화면 -->
+    <section id="questionView" class="card" aria-label="문항 화면" hidden>
+      <div class="row" style="justify-content: space-between; align-items: baseline;">
+        <h2 style="margin-bottom: 4px;">2. 문항에 답해 주세요</h2>
+        <span id="gradeBadge" class="badge">학년 미선택</span>
+      </div>
+      <p class="helper-text">학교·집·일상에서 겪은 일을 떠올리면서, 내게 가장 가까운 쪽에 표시해 보세요.</p>
+
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-label" id="progressLabel">0 / 0</div>
+      </div>
+
+      <div id="questionArea">
+        <div class="question-text" id="questionText">문항이 여기에 보입니다.</div>
+        <div class="options" id="optionsContainer"></div>
+        <div id="questionError" class="error-text" hidden>한 가지를 선택해 주세요.</div>
+      </div>
+
+      <div class="nav-buttons">
+        <div>
+          <button type="button" id="backButton" class="secondary">이전</button>
+        </div>
+        <div>
+          <button type="button" id="nextButton" class="secondary">다음</button>
+          <button type="button" id="submitButton">제출하기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 결과 화면 -->
+    <section id="resultView" class="card" aria-label="결과 화면" hidden>
+      <h2>3. 결과 보기</h2>
+      <p class="helper-text" id="resultIntroText"></p>
+      <div id="resultContent" class="result-summary"></div>
+
+      <h2>4. 간단한 돌아보기(피드백)</h2>
+      <div id="feedbackContent" class="result-summary"></div>
+
+      <div style="margin-top: 16px;" class="row">
+        <button type="button" id="restartButton" class="secondary">다시 하기</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ===== 도메인 정의 =====
+    const DOMAINS = {
+      SELF_AWARENESS: "자기 인식",
+      SELF_MANAGEMENT: "자기 관리",
+      SOCIAL_AWARENESS: "사회적 인식",
+      SOCIAL_COOPERATION: "사회적 협력",
+      RESPONSIBLE_DECISION: "책임 있는 의사결정",
+    };
+
+    // ===== 문항 정의: 3·4학년 (12문항) =====
+    const QUESTIONS_34 = [
+      { text: "학교에서 오늘 하루를 떠올리면, 내 기분이 어떤지 말할 수 있다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "슬프거나 속상할 때, 내가 왜 그런지 대략 알고 있다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "기분이 좋을 때(신나거나 즐거울 때), 그 이유를 말할 수 있다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "화가 날 때, 내 몸이나 마음에서 어떤 느낌이 오는지 알고 있다.", domain: DOMAINS.SELF_AWARENESS },
+
+      { text: "화가 나거나 속상할 때, 잠깐 멈추고 숨을 고르는 편이다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "하기 싫은 일(숙제, 정리 등)도 어느 정도 참고 끝낼 수 있다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "놀고 싶을 때도 해야 할 일을 먼저 하려고 노력한다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "친구와 다퉜을 때, 너무 심하게 화내지 않으려고 한다.", domain: DOMAINS.SELF_MANAGEMENT },
+
+      { text: "친구 얼굴 표정을 보고, 대략 어떤 기분인지 짐작할 수 있다.", domain: DOMAINS.SOCIAL_AWARENESS },
+      { text: "친구가 힘들어 보이면, 무슨 일이 있는지 궁금해진다.", domain: DOMAINS.SOCIAL_AWARENESS },
+
+      { text: "조별 활동에서, 친구들과 차례를 지키며 함께 하려고 한다.", domain: DOMAINS.SOCIAL_COOPERATION },
+      { text: "같이 게임이나 놀이를 할 때, 규칙을 지키려고 한다.", domain: DOMAINS.RESPONSIBLE_DECISION },
+    ];
+
+    // ===== 문항 정의: 5·6학년 (15문항) =====
+    const QUESTIONS_56 = [
+      { text: "어떤 일이 생기면, 내 안에서 드는 감정을 비교적 정확히 말할 수 있다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "같은 상황에서도, 전과 다른 마음이 드는 이유를 생각해 본다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "기쁘면서도 걱정되는 등, 서로 다른 감정이 같이 들 때가 있다는 것을 안다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "친구에게 속상한 일을 겪으면, 화·슬픔·서운함 등 여러 감정을 구분해 볼 수 있다.", domain: DOMAINS.SELF_AWARENESS },
+      { text: "시험을 보기 전, 긴장·기대·불안 같은 내 감정을 알아차릴 수 있다.", domain: DOMAINS.SELF_AWARENESS },
+
+      { text: "감정이 너무 커질 때, 나만의 진정 방법(숨 고르기, 잠깐 자리 떠나기 등)을 사용한다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "해야 할 일과 하고 싶은 일을 나누어, 순서를 정해 실천하려 한다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "실수했을 때, 스스로를 너무 심하게 탓하기보다 다음에 어떻게 할지 생각한다.", domain: DOMAINS.SELF_MANAGEMENT },
+      { text: "갈등이 생겼을 때, 바로 반응하기보다 한 번 더 생각하려 한다.", domain: DOMAINS.SELF_MANAGEMENT },
+
+      { text: "친구의 말투·표정·행동을 보고, 그 친구가 어떤 마음인지 상상해 본다.", domain: DOMAINS.SOCIAL_AWARENESS },
+      { text: "친구가 부탁을 거절했을 때, 그 친구의 입장도 이해해 보려고 한다.", domain: DOMAINS.SOCIAL_AWARENESS },
+      { text: "내 말이나 행동이 다른 사람 기분에 어떤 영향을 줄지 생각해 본다.", domain: DOMAINS.SOCIAL_AWARENESS },
+
+      { text: "조별 활동에서 자신의 역할을 맡아 책임감을 가지고 하려고 한다.", domain: DOMAINS.SOCIAL_COOPERATION },
+      { text: "서로 의견이 다를 때, 다른 친구의 의견도 들어보려고 한다.", domain: DOMAINS.SOCIAL_COOPERATION },
+
+      { text: "어떤 선택을 하기 전, 그 결과가 나와 다른 사람에게 어떤 영향을 줄지 떠올려 본다.", domain: DOMAINS.RESPONSIBLE_DECISION },
+    ];
+
+    // 학년 그룹 정보
+    const gradeGroups = {
+      "34": { label: "3·4학년용", questions: QUESTIONS_34, resultType: "overall" },
+      "56": { label: "5·6학년용", questions: QUESTIONS_56, resultType: "byDomain" },
+    };
+
+    const likertOptions = [
+      { value: 1, label: "전혀 그렇지 않다" },
+      { value: 2, label: "가끔 그렇다" },
+      { value: 3, label: "대체로 그렇다" },
+      { value: 4, label: "항상 그렇다" },
+    ];
+
+    // ===== 상태 =====
+    let currentGradeKey = null; // "34" or "56"
+    let currentIndex = 0;
+    let answers = [];
+
+    // ===== DOM 참조 =====
+    const introView = document.getElementById("introView");
+    const questionView = document.getElementById("questionView");
+    const resultView = document.getElementById("resultView");
+
+    const gradeButtons = document.querySelectorAll("[data-grade-group]");
+    const startButton = document.getElementById("startButton");
+    const studentCodeInput = document.getElementById("studentCodeInput");
+    const gradeBadge = document.getElementById("gradeBadge");
+
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+
+    const questionTextEl = document.getElementById("questionText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const questionError = document.getElementById("questionError");
+
+    const backButton = document.getElementById("backButton");
+    const nextButton = document.getElementById("nextButton");
+    const submitButton = document.getElementById("submitButton");
+
+    const resultIntroText = document.getElementById("resultIntroText");
+    const resultContent = document.getElementById("resultContent");
+    const feedbackContent = document.getElementById("feedbackContent");
+    const restartButton = document.getElementById("restartButton");
+
+    // ===== 이벤트 바인딩 =====
+    gradeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-grade-group");
+        selectGrade(key);
+      });
+    });
+
+    // 코드 입력/수정 시에도 start 버튼 활성 조건 확인
+    studentCodeInput.addEventListener("input", updateStartButtonState);
+
+    startButton.addEventListener("click", () => {
+      const code = (studentCodeInput.value || "").trim();
+      if (!currentGradeKey) {
+        alert("학년을 선택해 주세요.");
+        return;
+      }
+      if (!code) {
+        alert("반/번호 또는 코드를 적어 주세요.");
+        return;
+      }
+      startAssessment();
+    });
+
+    backButton.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (!ensureAnswered()) return;
+      if (currentIndex < getCurrentQuestions().length - 1) {
+        currentIndex++;
+        renderQuestion();
+      }
+    });
+
+    submitButton.addEventListener("click", () => {
+      if (!ensureAnswered()) return;
+      showResult();
+    });
+
+    restartButton.addEventListener("click", () => {
+      resetAll();
+    });
+
+    function updateStartButtonState() {
+      const code = (studentCodeInput.value || "").trim();
+      startButton.disabled = !(currentGradeKey && code);
+    }
+
+    function selectGrade(key) {
+      currentGradeKey = key;
+      const info = gradeGroups[key];
+      gradeBadge.textContent = info.label;
+      gradeBadge.classList.toggle("grade-34", key === "34");
+      gradeBadge.classList.toggle("grade-56", key === "56");
+
+      // 버튼 스타일 변경
+      gradeButtons.forEach((btn) => {
+        const k = btn.getAttribute("data-grade-group");
+        if (k === key) {
+          btn.style.background = "#1d4ed8";
+          btn.style.color = "#fff";
+        } else {
+          btn.style.background = "#e5e7eb";
+          btn.style.color = "#111827";
+        }
+      });
+
+      updateStartButtonState();
+    }
+
+    function startAssessment() {
+      introView.hidden = true;
+      questionView.hidden = false;
+      resultView.hidden = true;
+
+      const questions = getCurrentQuestions();
+      answers = new Array(questions.length).fill(null);
+      currentIndex = 0;
+      renderQuestion();
+    }
+
+    function getCurrentQuestions() {
+      if (!currentGradeKey) return [];
+      return gradeGroups[currentGradeKey].questions;
+    }
+
+    function renderQuestion() {
+      const questions = getCurrentQuestions();
+      const q = questions[currentIndex];
+      questionTextEl.textContent = `${currentIndex + 1}. ${q.text}`;
+
+      const total = questions.length;
+      const ratio = ((currentIndex + 1) / total) * 100;
+      progressFill.style.width = ratio + "%";
+      progressLabel.textContent = `${currentIndex + 1} / ${total}`;
+
+      optionsContainer.innerHTML = "";
+      const saved = answers[currentIndex];
+
+      likertOptions.forEach((opt) => {
+        const id = `q${currentIndex}_opt${opt.value}`;
+        const label = document.createElement("label");
+        label.className = "option";
+        label.setAttribute("for", id);
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "answer";
+        input.id = id;
+        input.value = String(opt.value);
+        if (saved === opt.value) {
+          input.checked = true;
+        }
+        input.addEventListener("change", () => {
+          answers[currentIndex] = opt.value;
+          questionError.hidden = true;
+        });
+
+        const span = document.createElement("span");
+        span.textContent = opt.label;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        optionsContainer.appendChild(label);
+      });
+
+      backButton.disabled = currentIndex === 0;
+      const last = currentIndex === getCurrentQuestions().length - 1;
+      nextButton.hidden = last;
+      submitButton.hidden = !last;
+      questionError.hidden = true;
+    }
+
+    function ensureAnswered() {
+      if (answers[currentIndex] == null) {
+        questionError.hidden = false;
+        return false;
+      }
+      return true;
+    }
+
+    // ===== 결과 및 서버 저장 =====
+    function showResult() {
+      questionView.hidden = true;
+      resultView.hidden = false;
+
+      const questions = getCurrentQuestions();
+      const gradeInfo = gradeGroups[currentGradeKey];
+
+      const payload = {
+        studentCode: (studentCodeInput.value || "").trim(),
+        gradeGroup: currentGradeKey,
+        answers,
+        resultType: gradeInfo.resultType,
+      };
+
+      if (gradeInfo.resultType === "overall") {
+        const avg = answers.reduce((sum, v) => sum + v, 0) / answers.length;
+        const level = scoreToLevel(avg);
+        payload.overallLevel = level;
+
+        renderOverallResult(level);
+      } else {
+        const domainScores = calcDomainScores(questions, answers);
+        const domainLevels = {};
+        Object.keys(domainScores).forEach((d) => {
+          domainLevels[d] = domainScores[d].level;
+        });
+        payload.domainLevels = domainLevels;
+
+        renderDomainResult(domainScores);
+      }
+
+      // 서버로 결과 전송
+      sendResultToServer(payload);
+    }
+
+    function sendResultToServer(payload) {
+      fetch("/api/sel/results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("저장 완료:", data);
+        })
+        .catch((err) => {
+          console.error("저장 실패:", err);
+        });
+    }
+
+    function scoreToLevel(avgScore) {
+      if (avgScore < 2) return "red";
+      if (avgScore < 3.2) return "yellow";
+      return "green";
+    }
+
+    function calcDomainScores(questions, answers) {
+      const totals = {};
+      const counts = {};
+      questions.forEach((q, idx) => {
+        const d = q.domain;
+        if (!totals[d]) {
+          totals[d] = 0;
+          counts[d] = 0;
+        }
+        totals[d] += answers[idx];
+        counts[d]++;
+      });
+      const result = {};
+      Object.keys(totals).forEach((d) => {
+        const avg = totals[d] / counts[d];
+        result[d] = { avg, level: scoreToLevel(avg), count: counts[d] };
+      });
+      return result;
+    }
+
+    function renderOverallResult(level) {
+      resultIntroText.textContent = "3·4학년 종합 신호등입니다. 색깔과 설명을 함께 읽어 주세요.";
+      resultContent.innerHTML = "";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "traffic-light";
+
+      const bulbs = document.createElement("div");
+      bulbs.className = "light-bulbs";
+      ["red", "yellow", "green"].forEach((color) => {
+        const b = document.createElement("div");
+        b.className = `bulb ${color} ${level === color ? "active" : ""}`;
+        bulbs.appendChild(b);
+      });
+
+      const box = document.createElement("div");
+      const title = document.createElement("div");
+      title.textContent = `종합 신호등: ${levelLabel(level)}`;
+      const caption = document.createElement("div");
+      caption.className = "small-caption";
+      caption.textContent = overallMessage(level);
+
+      box.appendChild(title);
+      box.appendChild(caption);
+
+      wrapper.appendChild(bulbs);
+      wrapper.appendChild(box);
+      resultContent.appendChild(wrapper);
+
+      feedbackContent.innerHTML = "";
+      const fb = document.createElement("div");
+      fb.className = "card";
+      fb.style.padding = "10px 12px";
+
+      const fbTitle = document.createElement("div");
+      fbTitle.className = "domain-card-title";
+      fbTitle.textContent = "오늘을 돌아보는 한 문장";
+
+      const fbText = document.createElement("div");
+      fbText.className = "small-caption";
+      fbText.textContent = feedbackMessageOverall(level);
+
+      fb.appendChild(fbTitle);
+      fb.appendChild(fbText);
+      feedbackContent.appendChild(fb);
+    }
+
+    function renderDomainResult(domainScores) {
+      resultIntroText.textContent = "5·6학년은 역량별 신호등을 보여 줍니다. 각 영역별 색과 설명을 읽어 보세요.";
+      resultContent.innerHTML = "";
+
+      const grid = document.createElement("div");
+      grid.className = "domain-grid";
+
+      Object.keys(domainScores).forEach((domainKey) => {
+        const info = domainScores[domainKey];
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.padding = "10px 12px";
+
+        const title = document.createElement("div");
+        title.className = "domain-card-title";
+        title.textContent = domainKey;
+
+        const tl = document.createElement("div");
+        tl.className = "traffic-light";
+
+        const bulbs = document.createElement("div");
+        bulbs.className = "light-bulbs";
+        ["red", "yellow", "green"].forEach((color) => {
+          const b = document.createElement("div");
+          b.className = `bulb ${color} ${info.level === color ? "active" : ""}`;
+          bulbs.appendChild(b);
+        });
+
+        const label = document.createElement("div");
+        label.textContent = levelLabel(info.level);
+
+        tl.appendChild(bulbs);
+        tl.appendChild(label);
+
+        const caption = document.createElement("div");
+        caption.className = "small-caption";
+        caption.textContent = domainMessage(domainKey, info.level);
+
+        card.appendChild(title);
+        card.appendChild(tl);
+        card.appendChild(caption);
+        grid.appendChild(card);
+      });
+
+      resultContent.appendChild(grid);
+
+      feedbackContent.innerHTML = "";
+      const fb = document.createElement("div");
+      fb.className = "card";
+      fb.style.padding = "10px 12px";
+      const sa = domainScores[DOMAINS.SELF_AWARENESS];
+      const sm = domainScores[DOMAINS.SELF_MANAGEMENT];
+
+      const fbTitle = document.createElement("div");
+      fbTitle.className = "domain-card-title";
+      fbTitle.textContent = "자기 인식·자기 관리 한 줄 조언";
+
+      const fbText = document.createElement("div");
+      fbText.className = "small-caption";
+      fbText.textContent = feedbackMessageSelf(sa?.level, sm?.level);
+
+      fb.appendChild(fbTitle);
+      fb.appendChild(fbText);
+      feedbackContent.appendChild(fb);
+    }
+
+    function levelLabel(level) {
+      if (level === "green") return "초록불 (잘 하고 있어요)";
+      if (level === "yellow") return "노란불 (괜찮지만 더 연습해요)";
+      return "빨간불 (지금은 연습이 많이 필요해요)";
+    }
+
+    function overallMessage(level) {
+      if (level === "green") return "내 감정을 알아차리고, 어느 정도 잘 다루고 있는 편이에요.";
+      if (level === "yellow") return "내 기분은 알지만, 관리가 조금 어려울 수 있어요.";
+      return "감정을 알아차리고 표현하는 연습이 좀 더 필요해요.";
+    }
+
+    function domainMessage(domain, level) {
+      const base = {
+        [DOMAINS.SELF_AWARENESS]: "감정을 알아차리고 이름 붙이는 힘",
+        [DOMAINS.SELF_MANAGEMENT]: "감정을 조절하고 행동을 선택하는 힘",
+        [DOMAINS.SOCIAL_AWARENESS]: "다른 사람의 마음을 짐작해 보는 힘",
+        [DOMAINS.SOCIAL_COOPERATION]: "함께 협력하고 소통하는 힘",
+        [DOMAINS.RESPONSIBLE_DECISION]: "나와 다른 사람을 함께 생각하는 선택",
+      }[domain] || "이 영역";
+
+      const detail = overallMessage(level);
+      return `${base}에 대한 신호입니다. ${detail}`;
+    }
+
+    function feedbackMessageOverall(level) {
+      if (level === "green") {
+        return "네 기분을 잘 알아차리고 표현하는 편이에요. 앞으로도 감정을 말로 표현하고, 힘들 때 주변에 도움을 요청하는 연습을 이어가 보세요.";
+      }
+      if (level === "yellow") {
+        return "내 기분은 알지만, 화가 날 때나 속상할 때 조절이 어려울 수 있어요. 숨을 깊게 쉬고, '지금 나는 ~해서 ~한 기분이야'라고 말해 보는 연습을 해 보세요.";
+      }
+      return "아직 감정을 잘 모르겠거나, 말로 표현하는 게 익숙하지 않을 수 있어요. 하루에 한 번 오늘 기분을 한 단어로 적어 보면서 천천히 연습해 보세요.";
+    }
+
+    function feedbackMessageSelf(levelSA, levelSM) {
+      const sa = levelSA || "yellow";
+      const sm = levelSM || "yellow";
+
+      if (sa === "green" && sm === "green") {
+        return "내 감정을 잘 알고 스스로 조절도 잘하고 있어요. 힘들 때 믿을 만한 어른에게 먼저 말을 걸어 보는 연습을 더하면 큰 도움이 돼요.";
+      }
+      if (sa === "green" && sm !== "green") {
+        return "내 기분은 잘 알지만, 행동으로 옮길 때가 조금 어렵울 수 있어요. 화가 날 때 '잠깐 멈추기 → 숨 고르기 → 차분히 말하기' 순서를 연습해 보세요.";
+      }
+      if (sa !== "green" && sm === "green") {
+        return "스스로 조절은 하는 편이지만, 내 마음을 더 정확히 아는 연습이 도움이 됩니다. 같은 상황에서도 어떤 감정이 드는지 일기나 메모로 적어 보세요.";
+      }
+      return "내 감정을 알아차리는 것도, 조절하는 것도 아직은 연습이 필요할 수 있어요. 하루에 한 번, 오늘 있었던 일과 그때의 기분을 한 줄씩 적어 보며 천천히 힘을 길러 보세요.";
+    }
+
+    function resetAll() {
+      currentGradeKey = null;
+      currentIndex = 0;
+      answers = [];
+
+      introView.hidden = false;
+      questionView.hidden = true;
+      resultView.hidden = true;
+
+      studentCodeInput.value = "";
+      gradeBadge.textContent = "학년 미선택";
+      gradeBadge.classList.remove("grade-34", "grade-56");
+
+      gradeButtons.forEach((btn) => {
+        btn.style.background = "#e5e7eb";
+        btn.style.color = "#111827";
+      });
+      startButton.disabled = true;
+    }
+  </script>
+</body>
+</html>
