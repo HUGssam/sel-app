@@ -3,197 +3,448 @@
 <head>
   <meta charset="UTF-8" />
   <title>사회정서학습(SEL) 진단 결과 - 교사용</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: "Noto Sans KR", system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
-      padding: 16px;
-      background: #f4f5f7;
+      padding: 0;
+      background: #f5f7fb;
+      color: #222;
     }
-    h1 {
-      margin-top: 0;
-      font-size: 24px;
+
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 16px 20px;
     }
-    .card {
-      background: #fff;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
     }
-    label {
+
+    main {
+      padding: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .filters label {
       font-size: 14px;
       margin-right: 4px;
     }
-    select, input {
-      padding: 4px 8px;
+
+    select, input[type="text"] {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
       font-size: 14px;
     }
+
     button {
-      padding: 6px 12px;
-      font-size: 14px;
-      border-radius: 4px;
+      border-radius: 999px;
       border: none;
+      padding: 7px 14px;
+      font-size: 14px;
       cursor: pointer;
     }
-    button.primary { background: #2563eb; color: #fff; }
-    button.secondary { background: #e5e7eb; color: #111827; }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+
+    .btn-small {
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .toolbar-title {
+      font-weight: 600;
+      font-size: 18px;
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 8px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
     }
+
     th, td {
-      border: 1px solid #d1d5db;
-      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px;
+      font-size: 14px;
       text-align: center;
+      vertical-align: top;
     }
+
     th {
       background: #2563eb;
-      color: #fff;
+      color: white;
+      font-weight: 600;
     }
+
+    tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+
     textarea {
-      width: 95%;
-      min-height: 48px;
-      font-size: 13px;
+      width: 100%;
+      min-height: 68px;
       resize: vertical;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 6px 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-sizing: border-box;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 20px 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      th, td {
+        font-size: 12px;
+      }
+      header h1 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
-    <div style="margin-bottom:8px;">
-      <label for="gradeGroup">학년 그룹</label>
-      <select id="gradeGroup">
+<header>
+  <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+</header>
+
+<main>
+  <!-- 필터 & 버튼 영역 -->
+  <div class="filters">
+    <div>
+      <label for="gradeSelect">학년 그룹</label>
+      <select id="gradeSelect">
         <option value="">전체</option>
         <option value="34">3-4학년</option>
         <option value="56">5-6학년</option>
       </select>
-
-      <label for="studentCode" style="margin-left:16px;">반/번호(코드)</label>
-      <input id="studentCode" placeholder="예: 3-1-02" />
-
-      <button class="primary" onclick="loadResults()">조회</button>
-      <button class="secondary" onclick="resetFilters()">초기화</button>
     </div>
-    <div id="countText" style="font-size:13px;color:#4b5563;">
-      총 0건의 결과가 있습니다.
+
+    <div>
+      <label for="codeInput">반/번호(코드)</label>
+      <input id="codeInput" type="text" placeholder="예: 3-1-02" />
     </div>
+
+    <button class="btn-primary" id="searchBtn">조회</button>
+    <button class="btn-secondary" id="resetBtn">초기화</button>
   </div>
 
-  <div class="card">
-    <h2 style="font-size:18px;margin-top:0;">2. 결과 목록</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>코드</th>
-          <th>학년그룹</th>
-          <th>종신호등</th>
-          <th>세부 정보 (지도 포인트)</th>
-          <th>응시시간</th>
-          <th>저장</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody">
-        <tr><td colspan="7">데이터가 없습니다.</td></tr>
-      </tbody>
-    </table>
+  <div class="toolbar">
+    <div class="toolbar-title">2. 결과 목록</div>
+    <button class="btn-secondary btn-small" id="downloadCsvBtn">엑셀 파일로 저장</button>
   </div>
 
-  <script>
-    async function loadResults() {
-      const gradeGroup = document.getElementById("gradeGroup").value.trim();
-      const studentCode = document.getElementById("studentCode").value.trim();
+  <p style="font-size:13px; color:#6b7280; margin-top:0;">
+    총 <span id="resultCount">0</span>건의 결과가 있습니다.
+  </p>
 
-      const params = new URLSearchParams();
-      if (gradeGroup) params.append("gradeGroup", gradeGroup);
-      if (studentCode) params.append("studentCode", studentCode);
+  <!-- 결과 테이블 -->
+  <table>
+    <thead>
+    <tr>
+      <th style="width: 40px;">ID</th>
+      <th style="width: 80px;">코드</th>
+      <th style="width: 70px;">학년그룹</th>
+      <th style="width: 80px;">종합신호등</th>
+      <th>세부 정보 (지도 포인트)</th>
+      <th style="width: 150px;">응시시간</th>
+      <th style="width: 70px;">저장</th>
+    </tr>
+    </thead>
+    <tbody id="resultBody">
+    <tr><td class="empty" colspan="7">데이터가 없습니다.</td></tr>
+    </tbody>
+  </table>
+</main>
 
-      try {
-        const res = await fetch("/api/sel/results?" + params.toString());
-        if (!res.ok) throw new Error("서버 오류");
-        const data = await res.json();
+<script>
+  // 전역에 보관해서 엑셀 다운로드 때도 같이 사용
+  let resultsData = [];
 
-        const tbody = document.getElementById("resultBody");
-        const countText = document.getElementById("countText");
+  // ------------------------
+  // 1. 자동 요약 문장 생성 함수
+  // ------------------------
+  function createAutoSummary(result) {
+    const gradeGroup = result.gradeGroup;
+    const level = result.overallLevel;
+    const domains = result.domainLevels || {};
 
-        if (!Array.isArray(data) || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7">데이터가 없습니다.</td></tr>`;
-          countText.textContent = "총 0건의 결과가 있습니다.";
-          return;
-        }
-
-        countText.textContent = `총 ${data.length}건의 결과가 있습니다.`;
-        tbody.innerHTML = data.map(rowToTrHtml).join("");
-      } catch (e) {
-        console.error(e);
-        alert("결과를 불러오는 중 오류가 발생했습니다.");
+    // 3–4학년: 종합 신호등 기반 간단 요약
+    if (gradeGroup === '34') {
+      if (level === 'green') {
+        return '기본 감정 인식과 조절이 비교적 잘 되어 있습니다. 일상 수업 속에서 지금의 강점을 계속 사용할 수 있도록 격려해 주세요.';
+      } else if (level === 'yellow') {
+        return '감정은 알고 있지만 상황에 따라 조절이 흔들릴 수 있습니다. 감정을 말로 표현하고, 힘들 때 도움을 요청하는 연습이 더 필요합니다.';
+      } else { // red
+        return '감정 어휘와 표현이 아직 제한적일 수 있습니다. 다양한 감정을 함께 이름 붙이고, 안전한 분위기에서 감정을 나눌 수 있는 활동이 특히 필요합니다.';
       }
     }
 
-    function rowToTrHtml(r) {
-      const created = r.created_at || r.createdAt;
-      const timeText = created ? new Date(created).toLocaleString("ko-KR") : "";
+    // 5–6학년: 역량별 신호등을 강점/보완으로 나누어 요약
+    const domainLabels = {
+      selfAwareness: '자기 인식',
+      selfManagement: '자기 관리',
+      socialAwareness: '사회적 인식',
+      relationshipSkills: '사회적 협력',
+      responsibleDecision: '책임 있는 의사결정'
+    };
 
-      const detail = r.detail || "";
+    const strengths = [];
+    const needs = [];
 
-      return `
-        <tr>
-          <td>${r.id}</td>
-          <td>${escapeHtml(r.student_code || r.studentCode || "")}</td>
-          <td>${escapeHtml(r.grade_group || r.gradeGroup || "")}</td>
-          <td>${escapeHtml(r.overall_level || r.overallLevel || "")}</td>
-          <td>
-            <textarea id="detail_${r.id}" placeholder="예: 자기조절 역량 지도 필요">${escapeHtml(detail)}</textarea>
-          </td>
-          <td>${escapeHtml(timeText)}</td>
-          <td>
-            <button onclick="saveDetail(${r.id})">저장</button>
-          </td>
-        </tr>
+    for (const key in domainLabels) {
+      const lv = domains[key];
+      if (!lv) continue;
+
+      if (lv === 'green') strengths.push(domainLabels[key]);
+      else if (lv === 'yellow' || lv === 'red') needs.push(domainLabels[key]);
+    }
+
+    const parts = [];
+
+    if (strengths.length) {
+      parts.push(`강점: ${strengths.join(', ')} 영역이 비교적 잘 발달해 있습니다.`);
+    }
+    if (needs.length) {
+      parts.push(`보완: ${needs.join(', ')} 영역을 수업·상담에서 조금 더 도와주면 좋겠습니다.`);
+    }
+
+    // 도메인 정보가 없으면 종합 신호등으로만 요약
+    if (!parts.length) {
+      if (level === 'green') {
+        return '사회정서 역량 전반이 안정적입니다. 또래 관계와 학습 상황에서 현재의 강점을 유지하도록 도와주세요.';
+      } else if (level === 'yellow') {
+        return '일상에서는 괜찮지만 스트레스 상황에서 감정 조절과 관계 기술이 흔들릴 수 있습니다. 실제 사례를 가지고 연습해 주면 좋습니다.';
+      } else {
+        return '여러 사회정서 영역에서 어려움이 보입니다. 감정 표현과 또래 관계 경험을 천천히 확장해 주는 것이 필요합니다.';
+      }
+    }
+
+    return parts.join(' ');
+  }
+
+  // ------------------------
+  // 2. 서버에서 결과 조회
+  // ------------------------
+  async function loadResults() {
+    const gradeGroup = document.getElementById('gradeSelect').value.trim();
+    const studentCode = document.getElementById('codeInput').value.trim();
+
+    const params = new URLSearchParams();
+    if (gradeGroup) params.append('gradeGroup', gradeGroup);
+    if (studentCode) params.append('studentCode', studentCode);
+
+    const res = await fetch('/api/sel/results?' + params.toString());
+    if (!res.ok) {
+      alert('결과를 불러오는 중 오류가 발생했습니다.');
+      return;
+    }
+    resultsData = await res.json();
+    renderTable();
+  }
+
+  // ------------------------
+  // 3. 테이블 렌더링
+  // ------------------------
+  function renderTable() {
+    const tbody = document.getElementById('resultBody');
+    tbody.innerHTML = '';
+
+    document.getElementById('resultCount').textContent = resultsData.length;
+
+    if (!resultsData.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="empty" colspan="7">데이터가 없습니다.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+
+    resultsData.forEach((row) => {
+      const tr = document.createElement('tr');
+
+      const gradeLabel = row.gradeGroup === '34' ? '3-4학년' : '5-6학년';
+      const overallLabel =
+        row.overallLevel === 'green'
+          ? '초록불'
+          : row.overallLevel === 'yellow'
+          ? '노란불'
+          : '빨간불';
+
+      const autoSummary = createAutoSummary(row);
+
+      tr.innerHTML = `
+        <td>${row.id}</td>
+        <td>${row.studentCode || ''}</td>
+        <td>${gradeLabel}</td>
+        <td>${overallLabel}</td>
+        <td data-note>
+          <textarea placeholder="예: 자기조절 역량 지도 필요"></textarea>
+        </td>
+        <td>${formatDateTime(row.createdAt)}</td>
+        <td>
+          <button class="btn-primary btn-small" data-save>저장</button>
+        </td>
       `;
+
+      const textarea = tr.querySelector('textarea');
+      // 이미 저장된 교사 메모가 있으면 사용, 없으면 자동 요약 사용
+      textarea.value = row.teacherNote && row.teacherNote.trim()
+        ? row.teacherNote
+        : autoSummary;
+
+      const saveBtn = tr.querySelector('[data-save]');
+      saveBtn.addEventListener('click', () => saveTeacherNote(row.id, textarea.value));
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function formatDateTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    }).format(d);
+  }
+
+  // ------------------------
+  // 4. 교사 메모 저장
+  // ------------------------
+  async function saveTeacherNote(id, note) {
+    try {
+      const res = await fetch(`/api/sel/results/${id}/teacher-note`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teacherNote: note })
+      });
+      if (!res.ok) throw new Error();
+      alert('저장되었습니다.');
+    } catch (e) {
+      console.error(e);
+      alert('저장 중 오류가 발생했습니다.');
+    }
+  }
+
+  // ------------------------
+  // 5. 전체 결과를 엑셀(CSV)로 다운로드
+  // ------------------------
+  function downloadCsv() {
+    if (!resultsData.length) {
+      alert('다운로드할 데이터가 없습니다.');
+      return;
     }
 
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    const header = [
+      'ID',
+      '코드',
+      '학년그룹',
+      '종합신호등',
+      '요약/지도 포인트',
+      '응시시간'
+    ];
 
-    async function saveDetail(id) {
-      const textarea = document.getElementById(`detail_${id}`);
-      if (!textarea) return;
-      const detail = textarea.value;
+    const rows = resultsData.map((row) => {
+      const gradeLabel = row.gradeGroup === '34' ? '3-4학년' : '5-6학년';
+      const overallLabel =
+        row.overallLevel === 'green'
+          ? '초록불'
+          : row.overallLevel === 'yellow'
+          ? '노란불'
+          : '빨간불';
 
-      try {
-        const res = await fetch("/api/sel/updateDetail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, detail }),
-        });
-        if (!res.ok) throw new Error("저장 실패");
-        alert("저장되었습니다.");
-      } catch (e) {
-        console.error(e);
-        alert("저장 중 오류가 발생했습니다.");
-      }
-    }
+      const autoSummary = createAutoSummary(row);
+      const note = (row.teacherNote && row.teacherNote.trim())
+        ? row.teacherNote.trim()
+        : autoSummary;
 
-    function resetFilters() {
-      document.getElementById("gradeGroup").value = "";
-      document.getElementById("studentCode").value = "";
-      loadResults();
-    }
+      return [
+        row.id,
+        row.studentCode || '',
+        gradeLabel,
+        overallLabel,
+        note.replace(/\r?\n/g, ' / '),
+        formatDateTime(row.createdAt)
+      ];
+    });
 
-    // 처음 진입 시 한 번 조회
+    let csv = '';
+    csv += header.join(',') + '\r\n';
+    rows.forEach(r => {
+      csv += r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\r\n';
+    });
+
+    // BOM을 넣어서 한글 깨짐 방지
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `sel_results_${today}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ------------------------
+  // 6. 이벤트 연결
+  // ------------------------
+  document.getElementById('searchBtn').addEventListener('click', loadResults);
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('gradeSelect').value = '';
+    document.getElementById('codeInput').value = '';
     loadResults();
-  </script>
+  });
+  document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
+
+  // 처음 진입 시 전체 조회
+  loadResults();
+</script>
 </body>
 </html>

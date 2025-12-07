@@ -1,572 +1,470 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <title>사회정서학습(SEL) 진단 - 학생용</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "맑은 고딕",
-          sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f5f5f5;
-      }
-      header {
-        background: #2962ff;
-        color: white;
-        padding: 16px 20px;
-        font-size: 20px;
-        font-weight: 700;
-      }
-      main {
-        padding: 16px 20px 40px;
-        max-width: 900px;
-        margin: 0 auto;
-      }
-      section {
-        background: white;
-        border-radius: 8px;
-        padding: 16px 18px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-      h2 {
-        margin: 0 0 10px;
-        font-size: 18px;
-      }
-      .small-text {
-        font-size: 13px;
-        color: #555;
-      }
-      label {
-        font-size: 14px;
-      }
-      input,
-      select {
-        font-size: 14px;
-        padding: 6px 8px;
-        margin-top: 4px;
-      }
-      .field-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        align-items: flex-end;
-      }
-      .field {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 8px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 14px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-      }
-      button.primary {
-        background: #2962ff;
-        color: white;
-      }
-      button.secondary {
-        background: #e0e0e0;
-      }
-      .question {
-        margin-bottom: 10px;
-        padding: 10px 8px;
-        border-bottom: 1px solid #eee;
-      }
-      .question-title {
-        font-size: 14px;
-        margin-bottom: 4px;
-      }
-      .options label {
-        margin-right: 8px;
-        font-size: 13px;
-      }
-      .result-box {
-        background: #f3f6ff;
-        border-radius: 6px;
-        padding: 10px 12px;
-        font-size: 14px;
-      }
-      .chip {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        color: white;
-      }
-      .chip.red {
-        background: #d32f2f;
-      }
-      .chip.yellow {
-        background: #f9a825;
-      }
-      .chip.green {
-        background: #388e3c;
-      }
-      textarea {
-        width: 100%;
-        box-sizing: border-box;
-        font-size: 14px;
-      }
-      @media (max-width: 600px) {
-        main {
-          padding: 12px;
-        }
-        section {
-          padding: 12px 14px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>사회정서학습(SEL) 진단 - 학생용</header>
+<head>
+  <meta charset="UTF-8" />
+  <title>사회정서학습(SEL) 진단 - 학생용</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f7fb;
+      color: #111827;
+    }
 
-    <main>
-      <!-- 1. 기본 정보 -->
-      <section>
-        <h2>1. 기본 정보</h2>
-        <p class="small-text">
-          담임선생님이 안내해 준 형식대로 <strong>학년·반·번호(코드)</strong>를
-          입력하세요. 예) <code>3-1-01</code>, <code>5-2-15</code> 등
-        </p>
-        <div class="field-row">
-          <div class="field">
-            <label>
-              학년 그룹
-              <select id="gradeGroup">
-                <option value="34">3-4학년</option>
-                <option value="56">5-6학년</option>
-              </select>
-            </label>
-          </div>
-          <div class="field" style="flex: 1 1 140px">
-            <label>
-              코드 (학년-반-번호)
-              <input
-                id="studentCode"
-                placeholder="예: 3-1-01"
-                maxlength="10"
-                style="width: 150px"
-              />
-            </label>
-          </div>
-          <div class="field">
-            <button class="primary" id="startBtn">진단 시작하기</button>
-          </div>
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 16px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+      padding: 16px 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    label {
+      font-size: 14px;
+    }
+
+    select, input[type="text"] {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    .question {
+      margin-bottom: 16px;
+      padding: 10px 10px 12px;
+      border-radius: 10px;
+      background: #f9fafb;
+    }
+
+    .question-title {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: white;
+      cursor: pointer;
+    }
+
+    .option input {
+      accent-color: #2563eb;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+
+    .result-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+
+    .pill.green { background:#dcfce7; color:#15803d; }
+    .pill.yellow { background:#fef9c3; color:#a16207; }
+    .pill.red { background:#fee2e2; color:#b91c1c; }
+
+    .hidden { display: none; }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>사회정서학습(SEL) 진단 - 학생용</h1>
+</header>
+
+<main>
+  <!-- 1. 기본 정보 -->
+  <section class="card">
+    <h2>1. 기본 정보</h2>
+    <div class="field-row">
+      <label for="gradeGroup">학년 그룹</label>
+      <select id="gradeGroup">
+        <option value="34">3-4학년</option>
+        <option value="56">5-6학년</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label for="studentCode">반/번호(코드)</label>
+      <input id="studentCode" type="text" placeholder="예: 3-1-02" />
+    </div>
+    <p style="font-size:13px; color:#6b7280; margin-top:4px;">
+      * 이름 대신 쓸 코드입니다. 예) 3학년 1반 2번 → <strong>3-1-02</strong>
+    </p>
+  </section>
+
+  <!-- 2. 문항 영역 -->
+  <section class="card">
+    <h2>2. 질문에 답해 주세요</h2>
+    <p style="font-size:13px; color:#4b5563; margin-top:0; margin-bottom:10px;">
+      아래 문장을 읽고, 요즘의 나와 가장 비슷한 정도를 골라 주세요.
+      <br />
+      <strong>전혀 그렇지 않다 / 가끔 그렇다 / 자주 그렇다 / 항상 그렇다</strong>
+    </p>
+    <div id="questionContainer"></div>
+    <button class="btn-primary" id="submitBtn">완료</button>
+    <button class="btn-secondary" id="resetBtn" style="margin-left:6px;">처음부터 다시</button>
+  </section>
+
+  <!-- 3. 결과 -->
+  <section class="card hidden" id="resultSection">
+    <h2>3. 오늘의 SEL 결과</h2>
+    <div id="resultContent" class="result-box"></div>
+  </section>
+</main>
+
+<script>
+  // ------------------------
+  // 1. 문항 정의
+  // ------------------------
+
+  // 3–4학년용 (12문항) : 자기 인식 / 자기 관리 중심
+  const QUESTIONS_34 = [
+    { id: 1,  text: '나는 요즘 내 기분이 어떤지 스스로 잘 알고 있다.', domain: 'selfAwareness' },
+    { id: 2,  text: '나는 슬프거나 화날 때, 그 감정을 말로 표현할 수 있다.', domain: 'selfAwareness' },
+    { id: 3,  text: '나는 힘들 때 나를 도와줄 사람을 떠올릴 수 있다.', domain: 'selfAwareness' },
+    { id: 4,  text: '나는 속상해도 조금 지나면 스스로 진정하려고 노력한다.', domain: 'selfManagement' },
+    { id: 5,  text: '나는 하기 싫어도 해야 할 일을 끝까지 하려고 한다.', domain: 'selfManagement' },
+    { id: 6,  text: '나는 할 일을 미루지 않으려고 계획을 세운다.', domain: 'selfManagement' },
+    { id: 7,  text: '나는 다른 사람의 감정을 상상해 보려고 한다.', domain: 'socialAwareness' },
+    { id: 8,  text: '나는 친구에게 먼저 다가가 말을 걸 수 있다.', domain: 'relationshipSkills' },
+    { id: 9,  text: '나는 친구와 다툰 뒤 먼저 사과하거나 이야기를 나누려고 한다.', domain: 'relationshipSkills' },
+    { id: 10, text: '나는 우리가 함께 지켜야 할 약속(규칙)을 중요하게 생각한다.', domain: 'responsibleDecision' },
+    { id: 11, text: '나는 잘못했을 때 솔직하게 인정하려고 한다.', domain: 'responsibleDecision' },
+    { id: 12, text: '나는 내 행동이 다른 사람에게 어떤 영향을 주는지 생각해 본다.', domain: 'responsibleDecision' }
+  ];
+
+  // 5–6학년용 (15문항) : 5역량 모두 다룸
+  const QUESTIONS_56 = [
+    { id: 1,  text: '나는 요즘 내 마음과 몸 상태를 스스로 점검하는 편이다.', domain: 'selfAwareness' },
+    { id: 2,  text: '나는 한 가지 감정 안에 여러 감정이 섞여 있을 수 있음을 안다.', domain: 'selfAwareness' },
+    { id: 3,  text: '나는 불편한 감정을 느낄 때 그 이유를 떠올려 본다.', domain: 'selfAwareness' },
+    { id: 4,  text: '나는 힘들어도 해야 할 일을 스스로 계획하고 실천하려 한다.', domain: 'selfManagement' },
+    { id: 5,  text: '나는 화가 날 때 나를 진정시키는 나만의 방법(호흡, 쉬기 등)을 사용한다.', domain: 'selfManagement' },
+    { id: 6,  text: '나는 긴장되거나 걱정될 때 나를 격려하는 말을 스스로에게 해 준다.', domain: 'selfManagement' },
+    { id: 7,  text: '나는 친구나 가족의 입장에서 상황을 보려고 노력한다.', domain: 'socialAwareness' },
+    { id: 8,  text: '나는 나와 다른 생각이나 문화도 존중하려고 한다.', domain: 'socialAwareness' },
+    { id: 9,  text: '나는 모둠 활동에서 다른 친구의 의견도 듣고 조율하려 한다.', domain: 'relationshipSkills' },
+    { id: 10, text: '나는 갈등이 생겼을 때 서로의 입장을 듣고 해결책을 찾으려고 한다.', domain: 'relationshipSkills' },
+    { id: 11, text: '나는 선택을 하기 전에 결과가 나와 다른 사람에게 미칠 영향을 생각해 본다.', domain: 'responsibleDecision' },
+    { id: 12, text: '나는 잘못된 행동을 권유받았을 때 거절할 줄 안다.', domain: 'responsibleDecision' },
+    { id: 13, text: '나는 나와 친구 모두에게 도움이 되는 선택을 찾으려고 한다.', domain: 'responsibleDecision' },
+    { id: 14, text: '나는 어려움이 있을 때 주변에 적절한 도움을 요청할 수 있다.', domain: 'relationshipSkills' },
+    { id: 15, text: '나는 우리 반/학교 공동체를 위해 내가 할 수 있는 일을 생각해 본다.', domain: 'socialAwareness' }
+  ];
+
+  const SCALE_OPTIONS = [
+    { value: 1, label: '전혀 그렇지 않다' },
+    { value: 2, label: '가끔 그렇다' },
+    { value: 3, label: '자주 그렇다' },
+    { value: 4, label: '항상 그렇다' }
+  ];
+
+  // ------------------------
+  // 2. 문항 렌더링
+  // ------------------------
+  const questionContainer = document.getElementById('questionContainer');
+  const gradeSelect = document.getElementById('gradeGroup');
+
+  function renderQuestions() {
+    questionContainer.innerHTML = '';
+    const grade = gradeSelect.value;
+    const questions = grade === '34' ? QUESTIONS_34 : QUESTIONS_56;
+
+    questions.forEach((q) => {
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `
+        <div class="question-title">Q${q.id}. ${q.text}</div>
+        <div class="options" data-qid="${q.id}">
         </div>
-      </section>
-
-      <!-- 2. 문항 영역 -->
-      <section id="questionSection" style="display: none">
-        <h2>2. 문항에 답해 주세요</h2>
-        <p class="small-text">
-          아래 문장을 읽고, <strong>나와 가장 비슷한 정도</strong>를 고르세요.
-          <br />
-          (1점: 전혀 그렇지 않다 / 2점: 가끔 그렇다 / 3점: 자주 그렇다 / 4점:
-          항상 그렇다)
-        </p>
-        <div id="questionList"></div>
-        <button class="primary" id="submitBtn">결과 보기</button>
-      </section>
-
-      <!-- 3. 결과 영역 -->
-      <section id="resultSection" style="display: none">
-        <h2>3. 나의 SEL 결과</h2>
-        <div class="result-box" id="resultBox"></div>
-
-        <h3 style="margin-top: 18px; margin-bottom: 6px">
-          오늘을 돌아보는 한 문장
-        </h3>
-        <p id="summarySentence" style="font-size: 14px; white-space: pre-line"></p>
-
-        <p class="small-text" style="margin-top: 10px">
-          * 결과는 나의 기분과 행동을 돌아보는 참고자료예요. 잘하는 점은 계속
-          살리고, 어렵다고 느껴지는 부분은 선생님과 함께 천천히 연습해보세요.
-        </p>
-
-        <div style="margin-top: 12px">
-          <button class="primary" id="saveBtn">선생님께 결과 보내기</button>
-          <button class="secondary" id="restartBtn">처음으로</button>
-        </div>
-      </section>
-    </main>
-
-    <script>
-      // -----------------------------
-      // 0. 문항 정의
-      // -----------------------------
-      const questions34 = [
-        // 자기 인식 (단일 감정)
-        {
-          domain: "자기 인식",
-          text: "나는 요즘 기분이 어떤지 스스로 잘 말할 수 있다.",
-        },
-        {
-          domain: "자기 인식",
-          text: "나는 화남, 슬픔, 기쁨 같은 감정을 구별해서 말할 수 있다.",
-        },
-        // 자기 관리
-        {
-          domain: "자기 관리",
-          text: "나는 화가 날 때, 깊게 숨 쉬기 같은 방법으로 스스로를 진정시킬 수 있다.",
-        },
-        {
-          domain: "자기 관리",
-          text: "나는 해야 할 일을 미루지 않으려고 노력한다.",
-        },
-        // 사회적 인식
-        {
-          domain: "사회적 인식",
-          text: "나는 친구의 표정이나 말투를 보고 기분을 짐작할 수 있다.",
-        },
-        {
-          domain: "사회적 인식",
-          text: "나는 다른 친구의 입장에서 생각해 보려고 노력한다.",
-        },
-        // 사회적 협력
-        {
-          domain: "사회적 협력",
-          text: "나는 모둠 활동에서 친구들과 차례를 지키며 이야기한다.",
-        },
-        {
-          domain: "사회적 협력",
-          text: "나는 친구와 의견이 달라도 말로 조절하려고 한다.",
-        },
-        // 책임 있는 의사결정
-        {
-          domain: "책임 있는 의사결정",
-          text: "나는 한 행동이 친구에게 어떤 영향을 줄지 생각해 본다.",
-        },
-        {
-          domain: "책임 있는 의사결정",
-          text: "나는 잘못했을 때 사과할 수 있다.",
-        },
-      ];
-
-      const questions56 = [
-        // 자기 인식 (단일 + 복합 감정)
-        {
-          domain: "자기 인식",
-          text: "나는 기쁨, 슬픔, 화남, 걱정 같은 감정을 구별해 표현할 수 있다.",
-        },
-        {
-          domain: "자기 인식",
-          text: "나는 한 상황에서 여러 감정(예: 기쁘지만 걱정됨)을 함께 느낄 수 있음을 알고 있다.",
-        },
-        // 자기 관리
-        {
-          domain: "자기 관리",
-          text: "나는 감정 때문에 실수했을 때, 다음에는 어떻게 할지 스스로 계획을 세운다.",
-        },
-        {
-          domain: "자기 관리",
-          text: "나는 스스로 정한 목표(예: 공부, 운동)를 꾸준히 지키려고 노력한다.",
-        },
-        // 사회적 인식
-        {
-          domain: "사회적 인식",
-          text: "나는 친구의 말과 행동에서 숨겨진 감정을 읽으려고 한다.",
-        },
-        {
-          domain: "사회적 인식",
-          text: "나는 나와 다른 생각을 가진 사람의 입장을 상상해 본다.",
-        },
-        // 사회적 협력
-        {
-          domain: "사회적 협력",
-          text: "나는 모둠 활동에서 역할을 나누고 서로 도와가며 일을 진행한다.",
-        },
-        {
-          domain: "사회적 협력",
-          text: "나는 친구와 갈등이 생겼을 때, 싸우기보다 대화로 해결하려고 한다.",
-        },
-        // 책임 있는 의사결정
-        {
-          domain: "책임 있는 의사결정",
-          text: "나는 내가 내린 결정이 나와 친구에게 어떤 영향을 줄지 생각해 본다.",
-        },
-        {
-          domain: "책임 있는 의사결정",
-          text: "나는 인터넷/메신저에서 상대를 존중하며 행동하려고 한다.",
-        },
-      ];
-
-      const gradeGroupEl = document.getElementById("gradeGroup");
-      const studentCodeEl = document.getElementById("studentCode");
-      const startBtn = document.getElementById("startBtn");
-      const questionSection = document.getElementById("questionSection");
-      const questionListEl = document.getElementById("questionList");
-      const submitBtn = document.getElementById("submitBtn");
-      const resultSection = document.getElementById("resultSection");
-      const resultBox = document.getElementById("resultBox");
-      const summarySentenceEl = document.getElementById("summarySentence");
-      const saveBtn = document.getElementById("saveBtn");
-      const restartBtn = document.getElementById("restartBtn");
-
-      let currentQuestions = [];
-      let currentAnswers = [];
-      let currentOverallLevel = "";
-      let currentDomainLevels = {};
-      let currentSummarySentence = "";
-
-      // -----------------------------
-      // 1. 진단 시작 버튼
-      // -----------------------------
-      startBtn.addEventListener("click", () => {
-        const code = studentCodeEl.value.trim();
-        if (!code) {
-          alert("코드를 입력해 주세요. (예: 3-1-01)");
-          studentCodeEl.focus();
-          return;
-        }
-        const group = gradeGroupEl.value;
-        currentQuestions = group === "34" ? questions34 : questions56;
-
-        renderQuestions();
-        questionSection.style.display = "block";
-        resultSection.style.display = "none";
-        window.scrollTo({ top: questionSection.offsetTop - 10, behavior: "smooth" });
+      `;
+      const optionsDiv = div.querySelector('.options');
+      SCALE_OPTIONS.forEach((opt) => {
+        const label = document.createElement('label');
+        label.className = 'option';
+        label.innerHTML = `
+          <input type="radio" name="q${q.id}" value="${opt.value}" />
+          <span>${opt.label}</span>
+        `;
+        optionsDiv.appendChild(label);
       });
+      questionContainer.appendChild(div);
+    });
+  }
 
-      // -----------------------------
-      // 2. 문항 렌더링
-      // -----------------------------
-      function renderQuestions() {
-        questionListEl.innerHTML = "";
-        currentAnswers = new Array(currentQuestions.length).fill(null);
+  gradeSelect.addEventListener('change', () => {
+    renderQuestions();
+    document.getElementById('resultSection').classList.add('hidden');
+  });
 
-        currentQuestions.forEach((q, index) => {
-          const div = document.createElement("div");
-          div.className = "question";
+  renderQuestions(); // 초기 렌더링
 
-          const title = document.createElement("div");
-          title.className = "question-title";
-          title.textContent = `${index + 1}. ${q.text}`;
-          div.appendChild(title);
+  // ------------------------
+  // 3. 채점(내부용) + 신호등 계산
+  // ------------------------
+  function calcLevels(grade, answers, questions) {
+    // domain별 평균 계산
+    const domainScores = {};
+    const domainCounts = {};
 
-          const options = document.createElement("div");
-          options.className = "options";
-
-          [1, 2, 3, 4].forEach((score) => {
-            const id = `q${index}_${score}`;
-            const label = document.createElement("label");
-            label.setAttribute("for", id);
-
-            const radio = document.createElement("input");
-            radio.type = "radio";
-            radio.name = `q${index}`;
-            radio.id = id;
-            radio.value = String(score);
-            radio.addEventListener("change", () => {
-              currentAnswers[index] = score;
-            });
-
-            label.appendChild(radio);
-            label.appendChild(
-              document.createTextNode(
-                score === 1
-                  ? "1점"
-                  : score === 2
-                  ? "2점"
-                  : score === 3
-                  ? "3점"
-                  : "4점"
-              )
-            );
-            options.appendChild(label);
-          });
-
-          div.appendChild(options);
-          questionListEl.appendChild(div);
-        });
+    questions.forEach((q, idx) => {
+      const v = answers[idx];
+      if (!domainScores[q.domain]) {
+        domainScores[q.domain] = 0;
+        domainCounts[q.domain] = 0;
       }
+      domainScores[q.domain] += v;
+      domainCounts[q.domain] += 1;
+    });
 
-      // -----------------------------
-      // 3. 결과 계산
-      // -----------------------------
-      submitBtn.addEventListener("click", () => {
-        if (currentAnswers.some((v) => v === null)) {
-          alert("아직 답하지 않은 문항이 있습니다.");
-          return;
-        }
+    const domainAvgs = {};
+    Object.keys(domainScores).forEach((key) => {
+      domainAvgs[key] = domainScores[key] / domainCounts[key];
+    });
 
-        const group = gradeGroupEl.value;
-        const totalScore = currentAnswers.reduce((a, b) => a + b, 0);
-        const maxScore = currentAnswers.length * 4;
-        const ratio = totalScore / maxScore;
+    function toLevel(avg) {
+      if (avg >= 3.25) return 'green';
+      if (avg >= 2.25) return 'yellow';
+      return 'red';
+    }
 
-        let overallLevel = "yellow";
-        if (ratio < 0.45) overallLevel = "red";
-        else if (ratio > 0.75) overallLevel = "green";
+    const domainLevels = {};
+    Object.keys(domainAvgs).forEach((key) => {
+      domainLevels[key] = toLevel(domainAvgs[key]);
+    });
 
-        currentOverallLevel = overallLevel;
+    const overallAvg = answers.reduce((a, b) => a + b, 0) / answers.length;
+    const overallLevel = toLevel(overallAvg);
 
-        // 영역별 점수
-        const domainScores = {};
-        currentQuestions.forEach((q, i) => {
-          if (!domainScores[q.domain]) {
-            domainScores[q.domain] = { sum: 0, count: 0 };
-          }
-          domainScores[q.domain].sum += currentAnswers[i];
-          domainScores[q.domain].count += 1;
-        });
+    return {
+      resultType: grade === '34' ? 'overall' : 'byDomain',
+      overallLevel,
+      domainLevels: grade === '34' ? {} : domainLevels
+    };
+  }
 
-        const domainLevels = {};
-        Object.keys(domainScores).forEach((domain) => {
-          const avg = domainScores[domain].sum / domainScores[domain].count;
-          let level = "노란불";
-          if (avg < 2) level = "빨간불";
-          else if (avg >= 3.2) level = "초록불";
-          domainLevels[domain] = { avg, level };
-        });
+  // 학생에게 보여줄 설명용 텍스트(숫자 없이)
+  function buildStudentMessage(grade, levels) {
+    const overall = levels.overallLevel;
 
-        currentDomainLevels = {};
+    let msg = '';
 
-        Object.keys(domainLevels).forEach((k) => {
-          const v = domainLevels[k];
-          if (v.level === "빨간불") currentDomainLevels[k] = "red";
-          else if (v.level === "초록불") currentDomainLevels[k] = "green";
-          else currentDomainLevels[k] = "yellow";
-        });
-
-        // 화면 표시용 텍스트
-        let html = `<div>나의 전체 SEL 신호등은 
-          <span class="chip ${overallLevel}">${
-          overallLevel === "green"
-            ? "초록불"
-            : overallLevel === "yellow"
-            ? "노란불"
-            : "빨간불"
-        }</span> 입니다.</div>`;
-
-        html += `<div class="small-text" style="margin-top:4px;">(점수가 높을수록 해당 역량을 더 잘 사용하고 있다는 뜻이에요.)</div>`;
-
-        html += `<ul style="margin-top:8px; padding-left:18px;">`;
-        Object.keys(domainLevels).forEach((domain) => {
-          const info = domainLevels[domain];
-          html += `<li>${domain}: <strong>${info.level}</strong> (평균 ${info.avg.toFixed(
-            1
-          )}점)</li>`;
-        });
-        html += `</ul>`;
-
-        resultBox.innerHTML = html;
-
-        // 한 문장 요약 만들기
-        const summary = buildSummarySentence(
-          overallLevel,
-          currentDomainLevels,
-          group
-        );
-        currentSummarySentence = summary;
-        summarySentenceEl.textContent = summary;
-
-        resultSection.style.display = "block";
-        window.scrollTo({ top: resultSection.offsetTop - 10, behavior: "smooth" });
-      });
-
-      // -----------------------------
-      // 4. 한 문장 요약 만들기
-      // -----------------------------
-      function buildSummarySentence(overall, domainLevels, gradeGroup) {
-        const strengths = [];
-        const needs = [];
-
-        Object.keys(domainLevels).forEach((d) => {
-          const lv = domainLevels[d];
-          if (lv === "green") strengths.push(d);
-          else if (lv === "red") needs.push(d);
-        });
-
-        let line1 = "";
-        if (overall === "green") {
-          line1 =
-            "네 감정과 행동을 꽤 잘 조절하고 있는 편이에요. 스스로를 잘 돌보고 있다는 뜻이에요.";
-        } else if (overall === "yellow") {
-          line1 =
-            "내 감정과 행동을 어느 정도 알고 있지만, 더 연습하면 훨씬 편해질 수 있어요.";
-        } else {
-          line1 =
-            "요즘 감정과 행동 때문에 조금 힘들 수 있어요. 괜찮아요, 천천히 연습하면 점점 나아질 수 있어요.";
-        }
-
-        let line2 = "";
-        if (strengths.length) {
-          line2 += `특히 ${strengths.join(
-            ", "
-          )} 영역에서 강점을 보이고 있어요. 이 부분은 계속 살려 보세요.`;
-        }
-
-        let line3 = "";
-        if (needs.length) {
-          line3 += `또 ${needs.join(
-            ", "
-          )} 영역은 함께 연습하면 더 편해질 수 있는 부분이에요. 도움이 필요할 때 선생님, 가족, 친구에게 솔직하게 이야기해 보세요.`;
-        }
-
-        if (!strengths.length && !needs.length) {
-          line2 =
-            "아직은 강점과 어려운 부분이 뚜렷하게 나뉘지 않아요. 앞으로의 경험을 통해 차분히 알아가면 돼요.";
-        }
-
-        return [line1, line2, line3].filter(Boolean).join("\n\n");
+    if (grade === '34') {
+      if (overall === 'green') {
+        msg += '요즘 나의 감정과 행동을 스스로 잘 살피고 조절하고 있어요. 지금처럼 나를 잘 돌보며 지내면 좋겠어요.';
+      } else if (overall === 'yellow') {
+        msg += '나를 이해하고 돌보려는 모습이 있지만, 상황에 따라 감정 조절이 어려울 때가 있을 수 있어요. 힘들 때 믿을 수 있는 어른에게 도움을 요청해 보세요.';
+      } else {
+        msg += '감정이 자주 요동치거나, 어떻게 표현해야 할지 막막할 수 있어요. 안전한 사람과 천천히 마음을 나누는 연습이 필요해요.';
       }
+      return msg;
+    }
 
-      // -----------------------------
-      // 5. 결과 저장 (서버로 전송)
-//      → summaryText 같이 보냄!!
-// -----------------------------
-      saveBtn.addEventListener("click", async () => {
-        const studentCode = studentCodeEl.value.trim();
-        const gradeGroup = gradeGroupEl.value;
+    // 5–6학년: 역량별 신호등 간단 설명
+    const labels = {
+      selfAwareness: '자기 인식',
+      selfManagement: '자기 관리',
+      socialAwareness: '사회적 인식',
+      relationshipSkills: '사회적 협력',
+      responsibleDecision: '책임 있는 의사결정'
+    };
 
-        if (!studentCode) {
-          alert("코드를 다시 확인해 주세요.");
-          return;
-        }
+    const strong = [];
+    const need = [];
 
-        try {
-          const payload = {
-            studentCode,
-            gradeGroup,
-            answers: currentAnswers,
-            resultType: "overall",
-            overallLevel: currentOverallLevel,
-            domainLevels: currentDomainLevels,
-            summaryText: currentSummarySentence, // 📌 한 문장 요약 같이 보냄
-          };
+    Object.keys(labels).forEach((key) => {
+      const lv = levels.domainLevels[key];
+      if (!lv) return;
+      if (lv === 'green') strong.push(labels[key]);
+      else if (lv === 'yellow' || lv === 'red') need.push(labels[key]);
+    });
 
-          const res = await fetch("/api/sel/results", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+    if (strong.length) {
+      msg += `잘 하고 있는 부분: ${strong.join(', ')} 영역이에요. 이 강점을 계속 사용할 수 있으면 좋겠어요.\n`;
+    }
+    if (need.length) {
+      msg += `더 연습하면 좋은 부분: ${need.join(', ')} 영역이에요. 수업 시간과 일상에서 조금씩 시도해 봅시다.`;
+    }
+    if (!msg) {
+      // 혹시 도메인 정보가 비어 있을 때 대비
+      if (overall === 'green') {
+        msg += '사회정서 역량 전반이 안정적이에요. 지금처럼 나와 다른 사람을 함께 돌보면 좋겠어요.';
+      } else if (overall === 'yellow') {
+        msg += '대부분은 괜찮지만, 스트레스가 큰 상황에서는 흔들릴 수 있어요. 나에게 맞는 돌봄 방법을 함께 찾으면 좋겠어요.';
+      } else {
+        msg += '여러 부분에서 어려움이 느껴질 수 있어요. 혼자 감당하지 말고 믿을 수 있는 어른과 함께 방법을 찾아가 봅시다.';
+      }
+    }
+    return msg;
+  }
 
-          if (!res.ok) throw new Error("save failed");
-          alert("선생님께 결과가 잘 전달되었습니다.");
-        } catch (err) {
-          console.error(err);
-          alert("결과를 저장하는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.");
-        }
+  function levelPill(level) {
+    if (level === 'green') return '<span class="pill green">초록불</span>';
+    if (level === 'yellow') return '<span class="pill yellow">노란불</span>';
+    return '<span class="pill red">빨간불</span>';
+  }
+
+  // ------------------------
+  // 4. 제출 버튼 핸들러
+  // ------------------------
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const grade = gradeSelect.value;
+    const code = document.getElementById('studentCode').value.trim();
+
+    if (!code) {
+      alert('반/번호(코드)를 입력해 주세요.');
+      return;
+    }
+
+    const questions = grade === '34' ? QUESTIONS_34 : QUESTIONS_56;
+    const answers = [];
+
+    for (const q of questions) {
+      const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+      if (!selected) {
+        alert(`Q${q.id} 문항에 답해 주세요.`);
+        return;
+      }
+      answers.push(Number(selected.value));
+    }
+
+    // 내부 계산 (숫자는 화면에 보여주지 않음)
+    const levels = calcLevels(grade, answers, questions);
+
+    // 결과 화면에 텍스트로만 보여주기
+    const resultSection = document.getElementById('resultSection');
+    const resultContent = document.getElementById('resultContent');
+
+    let html = '';
+
+    if (grade === '34') {
+      html += `<p>나의 SEL 종합 신호등은 ${levelPill(levels.overallLevel)} 입니다.</p>`;
+    } else {
+      const labels = {
+        selfAwareness: '자기 인식',
+        selfManagement: '자기 관리',
+        socialAwareness: '사회적 인식',
+        relationshipSkills: '사회적 협력',
+        responsibleDecision: '책임 있는 의사결정'
+      };
+      html += `<p>역량별 신호등입니다.</p>`;
+      html += `<ul style="padding-left:18px; margin-top:4px; margin-bottom:6px; font-size:13px;">`;
+      Object.keys(labels).forEach((key) => {
+        const lv = levels.domainLevels[key];
+        if (!lv) return;
+        html += `<li>${labels[key]}: ${levelPill(lv)}</li>`;
       });
+      html += `</ul>`;
+    }
 
-      // -----------------------------
-      // 6. 처음으로
-      // -----------------------------
-      restartBtn.addEventListener("click", () => {
-        resultSection.style.display = "none";
-        questionSection.style.display = "none";
-        currentAnswers = [];
-        currentQuestions = [];
-        studentCodeEl.value = "";
-        gradeGroupEl.value = "34";
-        window.scrollTo({ top: 0, behavior: "smooth" });
+    html += `<p style="margin-top:8px; white-space:pre-line;">오늘을 돌아보는 한 문장<br><strong>${buildStudentMessage(grade, levels)}</strong></p>`;
+
+    resultContent.innerHTML = html;
+    resultSection.classList.remove('hidden');
+
+    // 서버에 결과 저장 (점수 숫자는 서버 내부에서만 사용, 화면에는 안 나옴)
+    try {
+      await fetch('/api/sel/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentCode: code,
+          gradeGroup: grade,
+          answers,
+          resultType: levels.resultType,
+          overallLevel: levels.overallLevel,
+          domainLevels: levels.domainLevels
+        })
       });
-    </script>
-  </body>
+    } catch (e) {
+      console.error(e);
+      // 저장 실패해도 학생에게는 조용히 넘어가도 됨
+    }
+  });
+
+  // ------------------------
+  // 5. 리셋 버튼
+  // ------------------------
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    renderQuestions();
+    document.getElementById('resultSection').classList.add('hidden');
+  });
+</script>
+</body>
 </html>
