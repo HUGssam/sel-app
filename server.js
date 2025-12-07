@@ -1,64 +1,33 @@
 // server.js
 const express = require("express");
 const path = require("path");
-const { Pool } = require("pg");
+const { Pool } = require("pg");   // PostgreSQL
 const app = express();
 
-// ===== 기본 설정 =====
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-
-// ===== PostgreSQL 연결 =====
-// Render 환경변수에서 DATABASE_URL 불러오기
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// DB 테이블 자동 생성
-async function initDatabase() {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS results (
-        id SERIAL PRIMARY KEY,
-        student_code VARCHAR(20),
-        grade_group VARCHAR(10),
-        answers TEXT,
-        result_type VARCHAR(20),
-        overall_level VARCHAR(20),
-        domain_levels TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `);
-    console.log("DB 테이블 준비 완료");
-  } catch (error) {
-    console.error("DB 초기화 오류:", error);
-  }
-}
-initDatabase();
-
-
-// ===== 기본 URL → 학생 화면 =====
 app.get("/", (req, res) => {
   res.redirect("/student.html");
 });
 
-// ===== 학생/교사 페이지 라우트 =====
+// 학생 화면
 app.get("/student.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "student.html"));
 });
 
+// 교사 화면
 app.get("/teacher.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "teacher.html"));
 });
 
 
-// ===========================================
-// =============== API 영역 ==================
-// ===========================================
-
-// ===== API: 결과 저장 =====
+// ========= 결과 저장 =========
 app.post("/api/sel/results", async (req, res) => {
   const {
     studentCode,
@@ -69,64 +38,74 @@ app.post("/api/sel/results", async (req, res) => {
     domainLevels
   } = req.body;
 
-  if (!studentCode || !gradeGroup || !answers) {
-    return res.status(400).json({ error: "필수 항목 누락" });
-  }
-
   try {
-    const result = await pool.query(
-      `INSERT INTO results (student_code, grade_group, answers, result_type, overall_level, domain_levels)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [
-        studentCode,
-        gradeGroup,
-        JSON.stringify(answers),
-        resultType,
-        overallLevel,
-        JSON.stringify(domainLevels)
-      ]
-    );
+    const query = `
+      INSERT INTO sel_results(student_code, grade_group, answers, result_type, overall_level, domain_levels, created_at)
+      VALUES($1,$2,$3,$4,$5,$6, NOW())
+      RETURNING *;
+    `;
+
+    const result = await pool.query(query, [
+      studentCode,
+      gradeGroup,
+      JSON.stringify(answers),
+      resultType,
+      overallLevel,
+      JSON.stringify(domainLevels)
+    ]);
 
     res.json({ ok: true, result: result.rows[0] });
-  } catch (error) {
-    console.error("DB 저장 오류:", error);
-    res.status(500).json({ error: "DB 저장 중 오류" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "DB INSERT ERROR" });
   }
 });
 
-// ===== API: 결과 조회 (교사용) =====
+// ========= 결과 조회 =========
 app.get("/api/sel/results", async (req, res) => {
   const { gradeGroup, studentCode } = req.query;
 
-  let query = "SELECT * FROM results WHERE 1=1";
-  let params = [];
+  let sql = "SELECT * FROM sel_results WHERE 1=1";
+  const params = [];
 
   if (gradeGroup) {
     params.push(gradeGroup);
-    query += ` AND grade_group = $${params.length}`;
+    sql += ` AND grade_group = $${params.length}`;
   }
-
   if (studentCode) {
-    params.push(`%${studentCode.toLowerCase()}%`);
-    query += ` AND LOWER(student_code) LIKE $${params.length}`;
+    params.push(`%${studentCode}%`);
+    sql += ` AND student_code LIKE $${params.length}`;
   }
 
-  query += " ORDER BY id DESC";
+  sql += " ORDER BY id DESC";
 
   try {
-    const result = await pool.query(query, params);
+    const result = await pool.query(sql, params);
     res.json(result.rows);
-  } catch (error) {
-    console.error("DB 조회 오류:", error);
-    res.status(500).json({ error: "DB 조회 중 오류" });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "DB SELECT ERROR" });
   }
 });
 
 
-// ===========================================
-// =============== 서버 실행 =================
-// ===========================================
+// ========= ★ 세부지도코멘트 저장 API 추가 =========
+app.post("/api/sel/updateDetail", async (req, res) => {
+  const { id, detail } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE sel_results SET detail=$1 WHERE id=$2 RETURNING *`,
+      [detail, id]
+    );
+    res.json({ ok: true, result: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "DB UPDATE ERROR" });
+  }
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`SEL app server running on http://localhost:${PORT}`);

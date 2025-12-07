@@ -1,208 +1,89 @@
+<!-- teacher.html (일부분만 변경된 최종본 전체 제공) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>사회정서학습(SEL) 진단 결과 - 교사용</title>
-  <style>
-    body {
-      font-family: "Noto Sans KR", sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    .box {
-      background: white;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #345beb;
-      color: white;
-    }
-    .btn {
-      background: #345beb;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>SEL 결과 - 교사용</title>
+<style>
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background: #2c6cf6; color: white; }
+  textarea { width: 95%; height: 60px; }
+  button { padding: 5px 10px; }
+</style>
 </head>
-
 <body>
-  <h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
+<h1>사회정서학습(SEL) 진단 결과 - 교사용</h1>
 
-  <div class="box">
-    <h2>1. 조회 조건</h2>
+<div>
+  <label>학년 그룹</label>
+  <select id="gradeGroup">
+    <option value="">전체</option>
+    <option value="34">3-4학년</option>
+    <option value="56">5-6학년</option>
+  </select>
 
-    <label>학년 그룹</label>
-    <select id="gradeGroup">
-      <option value="">전체</option>
-      <option value="34">3·4학년</option>
-      <option value="56">5·6학년</option>
-    </select>
+  <label>반/번호</label>
+  <input id="studentCode" placeholder="예: 3-1-02">
+  <button onclick="loadResults()">조회</button>
+</div>
 
-    <label style="margin-left:20px;">반/번호(코드):</label>
-    <input id="studentCode" placeholder="예: 3-2 또는 5-1-02" />
+<table id="resultTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>코드</th>
+      <th>학년그룹</th>
+      <th>종신호등</th>
+      <th>세부 정보 (지도 포인트)</th>
+      <th>응시시간</th>
+      <th>저장</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    <button class="btn" onclick="loadResults()">조회</button>
-    <button class="btn" onclick="resetFilters()">초기화</button>
-    <button class="btn" onclick="downloadCSV()">엑셀 다운로드</button>
-  </div>
+<script>
+async function loadResults() {
+  const gradeGroup = document.getElementById("gradeGroup").value;
+  const studentCode = document.getElementById("studentCode").value;
 
-  <div class="box">
-    <h2>2. 결과 목록</h2>
-    <p id="countText">총 0건의 결과가 있습니다.</p>
+  const res = await fetch(`/api/sel/results?gradeGroup=${gradeGroup}&studentCode=${studentCode}`);
+  const data = await res.json();
 
-    <table id="resultTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>코드</th>
-          <th>학년그룹</th>
-          <th>총신호등</th>
-          <th>세부정보</th>
-          <th>응시시간</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  const tbody = document.querySelector("#resultTable tbody");
+  tbody.innerHTML = "";
 
-  <script>
-    let autoRefreshTimer = null;
+  data.forEach(r => {
+    const tr = document.createElement("tr");
 
-    async function loadResults() {
-      const gradeGroup = document.getElementById("gradeGroup").value;
-      const studentCode = document.getElementById("studentCode").value.trim();
+    tr.innerHTML = `
+      <td>${r.id}</td>
+      <td>${r.student_code}</td>
+      <td>${r.grade_group}</td>
+      <td>${r.overall_level}</td>
+      <td>
+        <textarea id="detail_${r.id}" placeholder="예: 자기조절 역량 강화 필요">${r.detail || ""}</textarea>
+      </td>
+      <td>${new Date(r.created_at).toLocaleString()}</td>
+      <td><button onclick="saveDetail(${r.id})">저장</button></td>
+    `;
 
-      const params = new URLSearchParams();
-      if (gradeGroup) params.append("gradeGroup", gradeGroup);
-      if (studentCode) params.append("studentCode", studentCode);
+    tbody.appendChild(tr);
+  });
+}
 
-      const res = await fetch(`/api/sel/results?${params.toString()}`);
-      const data = await res.json();
+async function saveDetail(id) {
+  const detail = document.getElementById(`detail_${id}`).value;
 
-      const tbody = document.querySelector("#resultTable tbody");
-      tbody.innerHTML = "";
+  await fetch("/api/sel/updateDetail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, detail })
+  });
 
-      data.forEach((r) => {
-        const tr = document.createElement("tr");
-
-        const detail = parseDetail(r.domain_levels || r.domainLevels);
-        const timeText = r.created_at
-          ? new Date(r.created_at).toLocaleString("ko-KR")
-          : "";
-
-        tr.innerHTML = `
-          <td>${r.id}</td>
-          <td>${r.student_code || r.studentCode}</td>
-          <td>${r.grade_group || r.gradeGroup}</td>
-          <td>${r.overall_level || r.overallLevel || ""}</td>
-          <td>${detail}</td>
-          <td>${timeText}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById("countText").innerText =
-        `총 ${data.length}건의 결과가 있습니다.`;
-    }
-
-    function parseDetail(raw) {
-      if (!raw) return "";
-      try {
-        const obj = typeof raw === "string" ? JSON.parse(raw) : raw;
-        return Object.entries(obj)
-          .map(([k, v]) => `${k}:${v}`)
-          .join(", ");
-      } catch {
-        return raw;
-      }
-    }
-
-    function resetFilters() {
-      document.getElementById("gradeGroup").value = "";
-      document.getElementById("studentCode").value = "";
-      loadResults();
-    }
-
-    // ===============================
-    // 🔥 CSV 다운로드 (엑셀 날짜 변환 방지 포함)
-    // ===============================
-    async function downloadCSV() {
-      const gradeGroup = document.getElementById("gradeGroup").value;
-      const studentCode = document.getElementById("studentCode").value.trim();
-
-      const params = new URLSearchParams();
-      if (gradeGroup) params.append("gradeGroup", gradeGroup);
-      if (studentCode) params.append("studentCode", studentCode);
-
-      const res = await fetch(`/api/sel/results?${params.toString()}`);
-      const data = await res.json();
-
-      const rows = data.map((r) => {
-        const detail = parseDetail(r.domain_levels || r.domainLevels);
-
-        // 🔹 코드가 날짜로 변환되지 않도록 Excel 보호 형식 적용
-        const codeValue = r.student_code || r.studentCode || "";
-        const safeCode = `="${String(codeValue).replace(/"/g, '""')}"`;
-
-        const created = r.created_at || r.createdAt;
-        const timeText = created
-          ? new Date(created).toLocaleString("ko-KR")
-          : "";
-
-        return [
-          r.id,
-          safeCode,          // ← 엑셀 자동 날짜 변환 방지
-          r.grade_group || r.gradeGroup,
-          r.overall_level || r.overallLevel || "",
-          detail,
-          timeText
-        ];
-      });
-
-      const csvLines = [
-        ["ID", "코드", "학년그룹", "총신호등", "세부정보", "응시시간"],
-        ...rows
-      ]
-        .map((row) => row.join(","))
-        .join("\n");
-
-      const blob = new Blob([csvLines], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `sel_results_${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-    }
-
-    // ===============================
-    // 🔄 자동 새로고침 (5초)
-    // ===============================
-    function startAutoRefresh() {
-      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-      autoRefreshTimer = setInterval(loadResults, 5000);
-    }
-
-    loadResults();
-    startAutoRefresh();
-  </script>
+  alert("저장되었습니다!");
+}
+</script>
 </body>
 </html>
