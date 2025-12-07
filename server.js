@@ -6,12 +6,11 @@ const app = express();
 // ===== 기본 설정 =====
 app.use(express.json());
 
-// public 폴더를 정적 파일로 제공
-app.use(express.static(path.join(__dirname, "public")));
+// ===== HTML 화면 라우트 =====
 
-// 기본 주소(/)로 들어오면 학생용 화면으로 이동
+// 기본 주소(/)로 들어오면 학생용 화면 보내기
 app.get("/", (req, res) => {
-  res.redirect("/student.html");
+  res.sendFile(path.join(__dirname, "public", "student.html"));
 });
 
 // 학생용 화면
@@ -79,7 +78,7 @@ app.get("/api/sel/results", (req, res) => {
 });
 
 // ===== 서버 실행 =====
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`SEL app server running on http://localhost:${PORT}`);
 });
