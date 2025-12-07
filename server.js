@@ -13,29 +13,61 @@ app.get("/", (req, res) => {
   res.redirect("/student.html");
 });
 
-// ---------- PostgreSQL 연결 설정 ----------
+// ---------- PostgreSQL 연결 ----------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Render의 Postgres(External URL) 사용 시 필요
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }, // Render Postgres용
 });
 
-// ---------- 항상 먼저 테이블 만들어 주는 함수 ----------
-async function ensureTable() {
-  const createSql = `
+// ---------- 테이블 생성 함수 ----------
+async function createTable() {
+  const sql = `
     CREATE TABLE IF NOT EXISTS sel_results (
       id SERIAL PRIMARY KEY,
-      student_code TEXT NOT NULL,      -- 코드(반-번호)
-      grade_group TEXT NOT NULL,       -- "34" / "56"
-      answers JSON NOT NULL,           -- 학생 응답(JSON 배열)
-      result_type TEXT,                -- "overall" / "byDomain"
-      overall_level TEXT,              -- red / yellow / green
-      domain_levels JSON,              -- 역량별 신호등 JSON
-      guidance TEXT,                   -- 교사용 세부 지도 포인트
+      student_code TEXT NOT NULL,
+      grade_group TEXT NOT NULL,
+      answers JSON NOT NULL,
+      result_type TEXT,
+      overall_level TEXT,
+      domain_levels JSON,
+      guidance TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     );
   `;
-  await pool.query(createSql);
+  await pool.query(sql);
+  console.log("✅ sel_results 테이블 확인/생성 완료");
+}
+
+// ---------- INSERT 재시도 도우미 ----------
+async function safeInsert(sql, params) {
+  try {
+    const result = await pool.query(sql, params);
+    return result;
+  } catch (err) {
+    // 테이블 없음 에러면 → 테이블 만들고 한 번 더 시도
+    if (err.code === "42P01") {
+      console.log("⚠️ 테이블 없음 → 생성 후 재시도");
+      await createTable();
+      const result = await pool.query(sql, params);
+      return result;
+    }
+    throw err;
+  }
+}
+
+// ---------- SELECT 재시도 도우미 ----------
+async function safeSelect(sql, params) {
+  try {
+    const result = await pool.query(sql, params);
+    return result;
+  } catch (err) {
+    if (err.code === "42P01") {
+      console.log("⚠️ 테이블 없음 → 생성 후 빈 목록 반환");
+      await createTable();
+      return { rows: [] };
+    }
+    throw err;
+  }
 }
 
 // =====================================================
@@ -43,8 +75,6 @@ async function ensureTable() {
 // =====================================================
 app.post("/api/sel/results", async (req, res) => {
   try {
-    await ensureTable(); // 🔥 저장하기 전에 테이블부터 만든다
-
     const {
       studentCode,
       gradeGroup,
@@ -73,7 +103,7 @@ app.post("/api/sel/results", async (req, res) => {
       guidance || null,
     ];
 
-    const result = await pool.query(insertSql, params);
+    const result = await safeInsert(insertSql, params);
     res.json({ ok: true, result: result.rows[0] });
   } catch (err) {
     console.error("INSERT ERROR:", err);
@@ -86,8 +116,6 @@ app.post("/api/sel/results", async (req, res) => {
 // =====================================================
 app.get("/api/sel/results", async (req, res) => {
   try {
-    await ensureTable(); // 🔥 조회하기 전에 테이블부터 만든다
-
     const { gradeGroup, studentCode } = req.query;
 
     let sql = `SELECT * FROM sel_results WHERE 1=1`;
@@ -105,7 +133,7 @@ app.get("/api/sel/results", async (req, res) => {
 
     sql += ` ORDER BY id DESC`;
 
-    const result = await pool.query(sql, params);
+    const result = await safeSelect(sql, params);
     res.json(result.rows);
   } catch (err) {
     console.error("SELECT ERROR:", err);
